@@ -4,3 +4,8 @@
 
 1. **api_backend_server**
     - Flask webserver for the API
+    
+2. **mobile_app**
+    - Mobile Application which is written in Flutter & Dart
+    
+![Screenshot](home_screen.png)
