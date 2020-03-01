@@ -128,7 +128,7 @@ def get_all_users(current_user):
     return jsonify({"users": result})
 
 
-@app.route("/api/create_activity", methods=["POST"])
+@app.route("/api/activities", methods=["POST"])
 @token_required
 def create_activity(current_user):
 
