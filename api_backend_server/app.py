@@ -70,7 +70,7 @@ def index():
     return jsonify(message="Hello from Python backend server")
 
 
-@app.route("/api/register", methods=["POST"])
+@app.route("/api/users/register", methods=["POST"])
 def signup_user():
     data = request.get_json()
 
