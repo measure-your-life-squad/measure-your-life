@@ -141,7 +141,7 @@ def create_activity(current_user):
     return jsonify({"message": "new activity created"})
 
 
-@app.route("/api/get_user_activites", methods=["GET"])
+@app.route("/api/activities", methods=["GET"])
 @token_required
 def get_user_activities(current_user):
 
