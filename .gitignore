@@ -130,3 +130,6 @@ dmypy.json
 
 # Compressed source files for AWS
 *.zip
+
+# sqlite3 db files
+*.db
