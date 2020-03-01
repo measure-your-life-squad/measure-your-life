@@ -8,4 +8,4 @@
 2. **mobile_app**
     - Mobile Application which is written in Flutter & Dart
     
-![Screenshot](home_screen.png)
+![Screenshot](home_screen.png) ![Screenshot](new_activity_screen.png)
