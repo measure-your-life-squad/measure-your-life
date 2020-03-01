@@ -85,7 +85,7 @@ def signup_user():
                     "user_id": public_id})
 
 
-@app.route("/api/login", methods=["POST"])
+@app.route("/api/users/login", methods=["POST"])
 def login_user():
 
     auth = request.authorization
