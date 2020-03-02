@@ -1,5 +1,5 @@
 flask==1.1.1
 datetime==4.3
 uuid==1.30
-Flask-SQLAlchemy2.4.1
+Flask-SQLAlchemy==2.4.1
 PyJWT==1.7.1

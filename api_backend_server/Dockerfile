@@ -1,5 +1,7 @@
 FROM python:3.8.2-slim-buster
 
+RUN apt-get update && apt-get install sqlite3
+
 RUN mkdir /app
 RUN mkdir /app_temp
 COPY /requirements.txt /app_temp
@@ -11,8 +13,14 @@ RUN pip3 install -r /app_temp/requirements.txt
 COPY /app.py /app
 
 WORKDIR /app
+RUN chown -R app:app /app
 
 USER app
+
+COPY /db_setup.sh /app
+COPY /db_setup.py /app
+
+RUN ./db_setup.sh
 
 ENTRYPOINT [ "python3", "app.py" ] 
 

@@ -18,7 +18,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
                                                    "SQLALCHEMY_DATABASE_URI",
                                                    "".join([
                                                             "sqlite:////",
-                                                            str(Path.cwd().parent.joinpath("local.db"))
+                                                            str(Path.cwd().joinpath("local.db"))
                                                             ])
                                                   )
 app.config["SQLALCHAMY_TRACK_MODIFICATIONS"] = True
