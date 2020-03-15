@@ -8,17 +8,16 @@ COPY /requirements.txt /app_temp
 
 RUN groupadd -r app && useradd --no-log-init -r -g app app
 
-RUN pip3 install -r /app_temp/requirements.txt 
+RUN pip3 install -r /app_temp/requirements.txt
 
-COPY /app.py /app
+RUN rm -r /app_temp
 
 WORKDIR /app
 RUN chown -R app:app /app
 
 USER app
 
-COPY /db_setup.sh /app
-COPY /db_setup.py /app
+COPY /web_app /app
 
 RUN ./db_setup.sh
 

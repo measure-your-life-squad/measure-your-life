@@ -25,7 +25,7 @@ paths:
       tags:
         - root
       summary: Returns a hello message from the server
-      operationId: index
+      operationId: apis.root.hello
       responses:
         '200':
           description: Hello message from the server
@@ -42,7 +42,7 @@ paths:
       tags:
         - users
       summary: Register a new user
-      operationId: signup_user
+      operationId: apis.users.signup_user
       requestBody:
         required: True
         content:
@@ -77,7 +77,7 @@ paths:
       tags:
         - users
       summary: Login an existing user
-      operationId: login_user
+      operationId: apis.users.login_user
       security:
         - BasicAuth: []
       responses:
@@ -109,9 +109,9 @@ paths:
       tags:
         - users
       summary: Get all registered users
-      operationId: get_all_users
+      operationId: apis.users.get_all_users
       security:
-        - ApiKeyAuth: []
+        - jwt: ['admin']
       responses:
         '200':
           description: Returns a list of registered users. API Key bearer needs admin privileges.
@@ -136,9 +136,9 @@ paths:
       tags:
         - activities
       summary: Save an activity record
-      operationId: create_activity
+      operationId: apis.activities.create_activity
       security:
-        - ApiKeyAuth: []
+        - jwt: ['user']
       requestBody:
         required: True
         content:
@@ -162,9 +162,9 @@ paths:
       tags:
         - activities
       summary: Get user activity records
-      operationId: get_user_activities
+      operationId: apis.activities.get_user_activities
       security: 
-        - ApiKeyAuth: []
+        - jwt: ['user']
       responses:
         '200':
           description: Retrieves a list of all activity records of a user
@@ -182,10 +182,12 @@ components:
     BasicAuth:
       type: http
       scheme: basic
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-access-tokens
+      x-basicInfoFunc: api_utils.basic_auth
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: api_utils.decode_token
   schemas:
     user:
       type: object
@@ -214,5 +216,3 @@ components:
           type: string
           description: Activity name
           example: Programming
-      
-      
