@@ -1,4 +1,6 @@
 import datetime
+from dateutil import parser as dp
+from dateutil import tz
 from functools import wraps
 import os
 from pathlib import Path
@@ -15,12 +17,9 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "very_very_secret_secret")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-                                                   "SQLALCHEMY_DATABASE_URI",
-                                                   "".join([
-                                                            "sqlite:////",
-                                                            str(Path.cwd().joinpath("local.db"))
-                                                            ])
-                                                  )
+    "SQLALCHEMY_DATABASE_URI",
+    "".join(["sqlite:////", str(Path.cwd().joinpath("local.db"))]),
+)
 app.config["SQLALCHAMY_TRACK_MODIFICATIONS"] = True
 
 
@@ -39,6 +38,8 @@ class Activities(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     name = db.Column(db.String(50), unique=False, nullable=False)
+    activity_start = db.Column(db.String(50), unique=False, nullable=False)
+    activity_end = db.Column(db.String(50), unique=False, nullable=False)
 
 
 def token_required(f):
@@ -58,7 +59,7 @@ def token_required(f):
         except jwt.exceptions.DecodeError:
             return jsonify({"message": "token is invalid"})
         else:
-            current_user = Users.query.filter_by(public_id=data['public_id']).first()
+            current_user = Users.query.filter_by(public_id=data["public_id"]).first()
 
         return f(current_user, *args, **kwargs)
 
@@ -77,12 +78,13 @@ def signup_user():
     hashed_password = generate_password_hash(data["password"], method="sha256")
     public_id = str(uuid.uuid4())
 
-    new_user = Users(public_id=public_id, name=data["name"], password=hashed_password, admin=False)
+    new_user = Users(
+        public_id=public_id, name=data["name"], password=hashed_password, admin=False
+    )
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "registered successfuly",
-                    "user_id": public_id})
+    return jsonify({"message": "registered successfuly", "user_id": public_id})
 
 
 @app.route("/api/users/login", methods=["POST"])
@@ -91,26 +93,35 @@ def login_user():
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
-        return make_response("could not verify", 401, {"WWW.Authentication": "Basic Reals: 'login required'"})
+        return make_response(
+            "could not verify",
+            401,
+            {"WWW.Authentication": "Basic realm: 'login required'"},
+        )
 
     user = Users.query.filter_by(name=auth.username).first()
 
     if check_password_hash(user.password, auth.password):
         token = jwt.encode(
-                            {
-                              "public_id": user.public_id,
-                              "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-                            },
-                            app.config["SECRET_KEY"]
-                          )
+            {
+                "public_id": user.public_id,
+                "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
+            },
+            app.config["SECRET_KEY"],
+        )
         return jsonify({"token": token.decode("UTF-8")})
 
-    return make_response("could not verify", 401, {"WWW.Authentication": "Basic realm: 'login required'"})
+    return make_response(
+        "could not verify", 401, {"WWW.Authentication": "Basic realm: 'login required'"}
+    )
 
 
 @app.route("/api/users", methods=["GET"])
 @token_required
 def get_all_users(current_user):
+
+    if not current_user.admin:
+        return make_response("unauthorized", 401)
 
     users = Users.query.all()
 
@@ -120,7 +131,6 @@ def get_all_users(current_user):
         user_data = {}
         user_data["public_id"] = user.public_id
         user_data["name"] = user.name
-        user_data["password"] = user.password
         user_data["admin"] = user.admin
 
         result.append(user_data)
@@ -134,11 +144,19 @@ def create_activity(current_user):
 
     data = request.get_json()
 
-    new_activities = Activities(name=data["name"], user_id=current_user.id)
+    start = dp.isoparse(data["activity_start"]).astimezone(tz.UTC)
+    end = dp.isoparse(data["activity_end"]).astimezone(tz.UTC)
+
+    new_activities = Activities(
+        name=data["name"],
+        user_id=current_user.id,
+        activity_start=start,
+        activity_end=end,
+    )
     db.session.add(new_activities)
     db.session.commit()
 
-    return jsonify({"message": "new activity created"})
+    return jsonify({"message": "new activity record created"})
 
 
 @app.route("/api/activities", methods=["GET"])
@@ -152,9 +170,11 @@ def get_user_activities(current_user):
 
         activity_data = {}
         activity_data["name"] = activity.name
+        activity_data["activity_start"] = activity.activity_start
+        activity_data["activity_end"] = activity.activity_end
         output.append(activity_data)
 
-    return jsonify({"list_of_activities": output})
+    return jsonify({"activities": output})
 
 
 if __name__ == "__main__":
