@@ -1,0 +1,218 @@
+openapi: '3.0.0'
+info:
+  title: MYL REST API
+  description: This is OpenAPI definition of REST API for the Measure-Your-Life project.
+  version: 0.1.0
+  contact:
+    url: 'https://github.com/measure-your-life-squad/measure-your-life'
+  license:
+    name: MIT
+    url: >-
+      https://github.com/measure-your-life-squad/measure-your-life/blob/develop/LICENSE
+servers:
+  - url: http://localhost:5000
+    description: For local API development purposes
+tags:
+  - name: root
+    description: root endpoint of the webserver
+  - name: users
+    description: Operations about users
+  - name: activities
+    description: Operations about activities
+paths:
+  /:
+    get:
+      tags:
+        - root
+      summary: Returns a hello message from the server
+      operationId: index
+      responses:
+        '200':
+          description: Hello message from the server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hello from Python backend server"
+  /api/users/register:
+    post:
+      tags:
+        - users
+      summary: Register a new user
+      operationId: signup_user
+      requestBody:
+        required: True
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: <user name>
+                password:
+                  type: string
+                  example: <user password>
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: registered successfuly
+                  user_id:
+                    type: string
+                    example: <user UUID>
+        default:
+          description: Unexpected error
+  /api/users/login:
+    post:
+      tags:
+        - users
+      summary: Login an existing user
+      operationId: login_user
+      security:
+        - BasicAuth: []
+      responses:
+        '200':
+          description: Successful login operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: <JWT token>
+        '401':
+          description: Failed login operation
+          headers:
+            WWW.Authentication: 
+              schema: 
+                type: string
+                example: Basic realm 'login required'
+              description: Authentication status
+          content:
+            text/html:
+              schema:
+                type: string
+                example: could not verify
+  /api/users:
+    get:
+      tags:
+        - users
+      summary: Get all registered users
+      operationId: get_all_users
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Returns a list of registered users. API Key bearer needs admin privileges.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/user"
+        '401':
+          description: Failed operation due to lack of sufficient privileges.
+          content:
+            text/html:
+              schema:
+                type: string
+                example: unathorized
+  /api/activities:
+    post:
+      tags:
+        - activities
+      summary: Save an activity record
+      operationId: create_activity
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: True
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/activity"
+      responses:
+        '200':
+          description: Saves a record of user's activity.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: new activity record created
+        default:
+          description: Unexpected error
+    get:
+      tags:
+        - activities
+      summary: Get user activity records
+      operationId: get_user_activities
+      security: 
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Retrieves a list of all activity records of a user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activities:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/activity"
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-access-tokens
+  schemas:
+    user:
+      type: object
+      properties:
+        admin:
+          type: string
+          example: false
+        name:
+          type: string
+          example: Tom
+        public_id:
+          type: string
+          example: 1130cae9-cbd1-4afe-ac94-d939b7fb4cfa
+    activity:
+      type: object
+      properties:
+        activity_end: 
+          type: string
+          description: Datetime in ISO-8601 format
+          example: "2020-03-15T15:27:44,098807487+01:00"
+        activity_start:
+          type: string
+          description: Datetime in ISO-8601 format
+          example: "2020-03-15T14:58:45,127086327+01:00"
+        name: 
+          type: string
+          description: Activity name
+          example: Programming
+      
+      
