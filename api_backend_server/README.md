@@ -43,3 +43,5 @@ In both cases, the server will be accessible on localhost:5000. Please note, tha
 ## REST API Definition
 
 There is an API definition available for the project in the OpenAPI 3.0 format, which can be imported to programs such as Postman or Swagger.
+
+When developing locally, Swagger UI is also directly coupled to the web server, at the following endpoint: ```localhost:5000/ui```
