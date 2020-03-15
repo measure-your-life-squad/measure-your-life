@@ -42,3 +42,8 @@ Source files for the REST-API backend server of the project hosted on Flask.
     ```docker container run -it -p 5000:5000 myl-backend:latest```
 
 In both cases, the server will be accessible on localhost:5000. Please note, that the database state inside the container will be lost once the container is stopped and should never be used in production. If you require a persistent database for development purposes, mount the sqlite3 database to the container from your local file system.
+
+
+## REST API Definition
+
+There is an API definition available for the project in the OpenAPI 3.0 format, which can be imported to programs such as Postman or Swagger.
