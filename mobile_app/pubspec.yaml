@@ -27,6 +27,7 @@ dependencies:
   provider: ^4.0.4
   intl: ^0.16.1
   time_span: ^1.0.3
+  flutter_svg: ^0.17.1
 
 dev_dependencies:
   flutter_test:
@@ -42,8 +43,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #  - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/register.svg
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

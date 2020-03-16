@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:measure_your_life_app/apis/activities_api.dart';
+import 'package:measure_your_life_app/apis/api.dart';
 import 'package:measure_your_life_app/dummydata/activities_data.dart';
 import 'dart:convert';
 import 'package:measure_your_life_app/models/activity.dart';
