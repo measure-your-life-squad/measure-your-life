@@ -1,5 +1,8 @@
 # MeasureYourLife 
 
+[![Build Status](https://travis-ci.com/measure-your-life-squad/measure-your-life.svg?branch=develop)](https://travis-ci.com/measure-your-life-squad/measure-your-life)
+[![codecov](https://codecov.io/gh/measure-your-life-squad/measure-your-life/branch/develop/graph/badge.svg)](https://codecov.io/gh/measure-your-life-squad/measure-your-life)
+
 #### MYL is an open-source project to build a mobile app that helps keeping track with what we spend our time on.
 
 
