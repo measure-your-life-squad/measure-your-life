@@ -18,6 +18,7 @@ def create_activity(token_info):
         user_id=token_info["public_id"],
         activity_start=start,
         activity_end=end,
+        category_id=data["category_id"],
     )
     database.db_session.add(new_activities)
     database.db_session.commit()
@@ -36,6 +37,7 @@ def get_user_activities(token_info):
         activity_data["name"] = activity.name
         activity_data["activity_start"] = activity.activity_start
         activity_data["activity_end"] = activity.activity_end
+        activity_data["category_id"] = activity.category_id
         output.append(activity_data)
 
     return jsonify({"activities": output})

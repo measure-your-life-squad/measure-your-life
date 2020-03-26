@@ -19,6 +19,8 @@ tags:
     description: Operations about users
   - name: activities
     description: Operations about activities
+  - name: categories
+    description: Operations about categories
 paths:
   /:
     get:
@@ -177,6 +179,26 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/activity"
+  /api/categories:
+    get:
+      tags:
+        - categories
+      summary: Get available categories
+      operationId: apis.categories.get_available_categories
+      security:
+        - jwt: ['user']
+      responses:
+        '200':
+          description: Retrieves a list of all available categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/category"
 components:
   securitySchemes:
     BasicAuth:
@@ -216,3 +238,22 @@ components:
           type: string
           description: Activity name
           example: Programming
+        category_id:
+          type: string
+          description: Category ID
+          example: 1
+    category:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Category ID, referenced in Activity
+          example: 1
+        name:
+          type: string
+          description: Category name
+          example: work
+        icon_name:
+          type: string
+          description: Category icon name
+          example: work_icon
