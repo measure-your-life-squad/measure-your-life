@@ -30,8 +30,16 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
     adminpwd = os.getenv("DBADMINPWD", "security threat")
-    public_id = str(uuid.uuid4())
-    name = "admin"
-    password = generate_password_hash(adminpwd, method="sha256")
+    dummyuserpwd = os.getenv("DUMMYUSERPWD", "minor security threat")
 
-    create_db_account(models.Users, public_id, name, password, admin=True)
+    admin_public_id = str(uuid.uuid4())
+    user_public_id = str(uuid.uuid4())
+
+    admin_name = "admin"
+    user_name = "dummyuser"
+
+    adm_password = generate_password_hash(adminpwd, method="sha256")
+    usr_password = generate_password_hash(dummyuserpwd, method="sha256")
+
+    create_db_account(models.Users, admin_public_id, admin_name, adm_password, admin=True)
+    create_db_account(models.Users, user_public_id, user_name, usr_password, admin=False)
