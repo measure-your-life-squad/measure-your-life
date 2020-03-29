@@ -134,5 +134,8 @@ dmypy.json
 # sqlite3 db files
 *.db
 
+# mongodb storage files
+db/
+
 # dart stuff
 .dart_tool/
