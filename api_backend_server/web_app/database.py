@@ -24,11 +24,21 @@ def create_db_account(table, public_id, name, password, admin=False):
     db_session.commit()
 
 
-def init_db():
-    import models
+def create_category(table, name, icon_name):
+    new_category = table(name=name, icon_name=icon_name)
+    db_session.add(new_category)
+    db_session.commit()
 
-    Base.metadata.create_all(bind=engine)
 
+def setup_categories():
+    return [
+        ["work", "work_icon"],
+        ["responsibilities", "responsibilities_icon"],
+        ["leisure time", "leisure_icon"],
+    ]
+
+
+def setup_users():
     adminpwd = os.getenv("DBADMINPWD", "security threat")
     dummyuserpwd = os.getenv("DUMMYUSERPWD", "minor security threat")
 
@@ -38,8 +48,27 @@ def init_db():
     admin_name = "admin"
     user_name = "dummyuser"
 
-    adm_password = generate_password_hash(adminpwd, method="sha256")
-    usr_password = generate_password_hash(dummyuserpwd, method="sha256")
+    adm_encrypted_password = generate_password_hash(adminpwd, method="sha256")
+    usr_encrypted_password = generate_password_hash(dummyuserpwd, method="sha256")
 
-    create_db_account(models.Users, admin_public_id, admin_name, adm_password, admin=True)
-    create_db_account(models.Users, user_public_id, user_name, usr_password, admin=False)
+    return [
+        [admin_public_id, admin_name, adm_encrypted_password, True],
+        [user_public_id, user_name, usr_encrypted_password, False],
+    ]
+
+
+def init_db():
+    import models
+
+    Base.metadata.create_all(bind=engine)
+
+    users = setup_users()
+
+    for user in users:
+        create_db_account(models.Users, *user)
+        create_db_account(models.Users, *user)
+
+    categories = setup_categories()
+
+    for category in categories:
+        create_category(models.Categories, *category)
