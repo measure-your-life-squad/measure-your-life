@@ -6,7 +6,7 @@ services:
     - docker
 
 before_install:
-    - mkdir /data/db
+    - mkdir -p /data/db
     - docker-compose up
 
 install:
