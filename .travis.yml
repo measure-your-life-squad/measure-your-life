@@ -6,7 +6,8 @@ services:
     - docker
 
 before_install:
-    - sudo mkdir -p ./data/db
+    - ls -d $PWD
+    - sudo mkdir -p $PWD/data/db
     - docker-compose up
 
 install:
