@@ -1,0 +1,5 @@
+enum Category {
+  WORK,
+  RESPONSIBILITIES,
+  LEISURE_TIME,
+}

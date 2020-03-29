@@ -8,13 +8,12 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
 dist/
+build/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -50,6 +49,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+junit/
 
 # Translations
 *.mo
@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Compressed source files for AWS
+*.zip
+
+# sqlite3 db files
+*.db
+
+# dart stuff
+.dart_tool/
