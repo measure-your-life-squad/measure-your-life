@@ -14,12 +14,13 @@ install:
     - pip install -r cicd_requirements.txt
 
 script:
-    python3.8 -m pytest api_backend_server/tests/ \
-    --doctest-modules \
-    --junitxml=junit/test-results.xml \
-    --cov=api_backend_server/web_app \
-    --cov-report=xml \
-    --cov-report=html
+    - |
+      python3.8 -m pytest api_backend_server/tests/ \
+      --doctest-modules \
+      --junitxml=junit/test-results.xml \
+      --cov=api_backend_server/web_app \
+      --cov-report=xml \
+      --cov-report=html
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)
