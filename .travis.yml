@@ -6,10 +6,11 @@ services:
     - docker
 
 before_install:
-    - sudo mkdir -p $PWD/mongodb/data/db
-    - docker-compose up
+    - sudo mkdir -p $PWD/mongo_db/data/db
+    - docker-compose up -d
 
 install:
+    - docker ps
     - pip install -r cicd_requirements.txt
 
 script:
