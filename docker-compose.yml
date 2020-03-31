@@ -9,27 +9,32 @@ services:
     depends_on:
         - mongo
     image: api_server:latest
-    deploy:
-        replicas: 1
-        restart_policy:
-            condition: on-failure
-            delay: 5s
-            max_attempts: 3
-            window: 120s
     ports: 
         - "5000:5000"
+    links: 
+        - mongo
+    environment:
+        SECRET_KEY: ${SECRET_KEY}
+        APISERVERPWD: ${APISERVERPWD}
+        APISERVERUSR: ${APISERVERUSR}
 
   mongo:
-    image: mongo:4.2-bionic
+    build:
+        context: ./mongo_db
+        dockerfile: Dockerfile
+    image: mongo_db:latest
     restart: always
     volumes:
         - type: bind
           source: ./mongo_db/data/db
           target: /data/db
     environment:
-        MONGO_INITDB_ROOT_USERNAME: root
-        MONGO_INITDB_ROOT_PASSWORD: example
-        ME_CONFIG_MONGODB_PORT: 27017
+        ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGOADMINUSR}
+        ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGOADMINPWD}
+        MONGO_INITDB_DATABASE: ${MONGOINITDBDATABASE}
+        ME_CONFIG_MONGODB_PORT: ${MECONFIGMONGODBPORT}
+        APISERVERUSR: ${APISERVERUSR}
+        APISERVERPWD: ${APISERVERPWD}
   
   mongo-express:
     image: mongo-express:0.54
@@ -37,7 +42,7 @@ services:
     ports:
         - "8081:8081"
     environment:
-        ME_CONFIG_MONGODB_ADMINUSERNAME: root
-        ME_CONFIG_MONGODB_ADMINPASSWORD: example
-        ME_CONFIG_MONGODB_PORT: 27017
+        ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGOADMINUSR}
+        ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGOADMINPWD}
+        ME_CONFIG_MONGODB_PORT: ${MECONFIGMONGODBPORT}
         ME_CONFIG_MONGODB_SERVER: mongo

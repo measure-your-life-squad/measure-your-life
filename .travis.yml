@@ -7,6 +7,16 @@ services:
 
 before_install:
     - sudo mkdir -p $PWD/mongo_db/data/db
+    - |
+      cat <<-EOF > .env
+      SECRET_KEY=flasksecretkey
+      APISERVERPWD=apiserverpassword
+      APISERVERUSR=apiserveruser
+      MONGOINITDBDATABASE=mongodev
+      MONGOADMINUSR=admin
+      MONGOADMINPWD=example
+      MECONFIGMONGODBPORT=27017
+      EOF
     - docker-compose up -d
 
 install:

@@ -5,16 +5,24 @@ from models import Categories
 
 def get_available_categories(token_info):
 
-    categories = Categories.query.all()
+    categories = Categories.objects.only("public_id", "name", "icon_name").exclude("id")
 
-    result = []
+    return jsonify({"categories": categories})
 
-    for category in categories:
-        category_data = {}
-        category_data["id"] = category.id
-        category_data["name"] = category.name
-        category_data["icon_name"] = category.icon_name
 
-        result.append(category_data)
+def _get_specific_category(category_id):
 
-    return jsonify({"categories": result})
+    try:
+        (category,) = Categories.objects(public_id=category_id)
+    except ValueError as e:
+        if (
+            len(e.args) > 0
+            and e.args[0] == "not enough values to unpack (expected 1, got 0)"
+        ):
+            raise ValueError(
+                f"Category with id={category_id} does not exist in the Database"
+            ) from e
+        else:
+            raise e
+
+    return category

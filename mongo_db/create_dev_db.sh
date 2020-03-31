@@ -1,1 +1,0 @@
-# TODO: write a script to populate mongodb data/db directory with dev data
