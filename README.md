@@ -8,8 +8,8 @@
 
 Repository Table of Contents:
 1. **root directory**
-    - docker-compose definition for backend container infrastructure
-    - travis CI definition
+    - Docker-compose definition for backend container infrastructure
+    - Travis CI definition
 
 2. **api_backend_server**
     - Flask REST-API webserver, with Connexion and Swagger UI
