@@ -1,43 +1,26 @@
-# Flask Back-End REST-API Server
+# Flask Back-End REST-API Server with MongoDB and Swagger
 
-Source files for the REST-API backend server of the project hosted on Flask.
+Source files for the Flask REST-API backend server <-> MongoDB stack with Swagger. 
 
 ## In order to run locally
-1. First, create a python virtual environment:
-    1. Install venv:
-        ```bash
-        pip3 install venv
-        ```
-    2. Navigate to the *api_backend_server* directory and create a virtual environment:
-        ```bash
-        python3 -m venv ./venv
-        ```
-    3. Activate the environment with:
-        ```bash
-        source bin/activate
-        ```
-2. Create a sqlite3 database:
-    1. Install sqlite3:
-        ```bash
-        sudo apt-get install sqlite3
-        ```
-    2. Run a script initializing sqlite3 database
-        ```bash
-        ./db_setup.sh
-        ``` 
-3. Run the flask server from within the environment with:
-    ```python3 app.py```
 
-Disclaimer - local run may be broken since the latest refactor, main focus on keeping the Docker container for development.
-
-## In order to run as a docker container
 1. Install Docker Engine appropriate to your platform: [Docker Engine Overview](https://docs.docker.com/install/)
-2. Navigate to the *api_backend_server* directory and execute the following command (may require sudo privileges on linux):
-    ```docker build -t myl-backend:latest .```
-3. Once the image is build, execute:
-    ```docker container run -it -p 5000:5000 myl-backend:latest```
+2. [Install Docker Compose](https://docs.docker.com/compose/install/)
+3. Navigate to the *measure-your-life* directory and create an *.env* file with the following environment variables:
+```bash
+SECRET_KEY=flasksecretkey
+APISERVERPWD=apiserverpassword
+APISERVERUSR=apiserveruser
+MONGOINITDBDATABASE=mongodev
+MONGOADMINUSR=admin
+MONGOADMINPWD=adminpassword
+MECONFIGMONGODBPORT=27017
+```
+4. Create a new empty directory *mongo_db/data/db* for the MongoDB container to persist db data.
+5. Execute the following command (may require sudo privileges on linux):
+    ```docker-compose up ```
 
-In both cases, the server will be accessible on localhost:5000. Please note, that the database state inside the container will be lost once the container is stopped and should never be used in production. If you require a persistent database for development purposes, mount the sqlite3 database to the container from your local file system.
+Once the container are started, the Flask web server will be accessible at localhost:5000. Mongo-Express container can be used to inspect MongoDB state, it is accessible at localhost:8081. MongoDB database state will be persisted in the directory created in step 4. If you would like to clean the db state, simply remove the files from the *mongo_db/data/db* directory.
 
 
 ## REST API Definition

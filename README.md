@@ -7,11 +7,20 @@
 
 
 Repository Table of Contents:
-1. **api_backend_server**
-    - Flask webserver for the API
+1. **root directory**
+    - docker-compose definition for backend container infrastructure
+    - travis CI definition
 
-2. **mobile_app**
-    - Mobile Application which is written in Flutter & Dart
+2. **api_backend_server**
+    - Flask REST-API webserver, with Connexion and Swagger UI
+    - Backend setup instructions
+    - OpenAPI 3.0 definition
+
+3. **mongo_db**
+    - MongoDB initialization scripts
+
+4. **mobile_app**
+    - Mobile Application written in Flutter & Dart
     
 ![Screenshot](home_screen.png) ![Screenshot](new_activity_screen.png)
 
