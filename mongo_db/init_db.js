@@ -24,8 +24,8 @@ db.categories.insert(
 db.categories.insert(
     {
         public_id: 2,
-        name: "responsibilities",
-        icon_name: "responsibilities_icon"
+        name: "duties",
+        icon_name: "duties_icon"
     }
 );
 db.categories.insert(
