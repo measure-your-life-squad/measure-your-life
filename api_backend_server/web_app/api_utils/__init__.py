@@ -14,15 +14,26 @@ def basic_auth(username, password, required_scopes=None):
 
     info = None
 
-    current_app.logger.info(username)
-    user = Users.query.filter(Users.name == username).first()
+    try:
+        (user,) = Users.objects(name=username)
+    except ValueError as e:
+        if (
+            len(e.args) > 0
+            and e.args[0] == "not enough values to unpack (expected 1, got 0)"
+        ):
+            raise ValueError(
+                f"User with username={username} not found in the Database"
+            ) from e
+        else:
+            raise ValueError(
+                f"More than one user with username={username} found in the Database"
+            ) from e
 
-    if user:
-        if check_password_hash(user.password, password):
-            if user.admin:
-                info = {"sub": "admin", "public_id": user.public_id}
-            else:
-                info = {"sub": "user", "public_id": user.public_id}
+    if check_password_hash(user.password, password):
+        if user.admin:
+            info = {"sub": "admin", "public_id": str(user.public_id)}
+        else:
+            info = {"sub": "user", "public_id": str(user.public_id)}
 
     return info
 
@@ -40,9 +51,7 @@ def admin_scope_required(f):
 
         current_app.logger.info([*kwargs])
         current_app.logger.info(kwargs["token_info"])
-        if (
-            kwargs["token_info"]["scope"] == "admin"
-        ):
+        if kwargs["token_info"]["scope"] == "admin":
             return f(*args, **kwargs)
         else:
             return jsonify(
@@ -53,4 +62,5 @@ def admin_scope_required(f):
                     "type": "about:blank",
                 }
             )
+
     return wrapper

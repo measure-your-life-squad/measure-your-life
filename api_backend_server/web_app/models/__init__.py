@@ -1,30 +1,31 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
-from database import Base
+from mongoengine import (
+    Document,
+    UUIDField,
+    StringField,
+    BooleanField,
+    ReferenceField,
+    DateTimeField,
+    IntField,
+)
 
 
-class Users(Base):
-    __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    public_id = Column(Integer)
-    name = Column(String(50))
-    password = Column(String(50))
-    admin = Column(Boolean)
+class Users(Document):
+    public_id = UUIDField(binary=False, required=True, unique=True)
+    name = StringField(max_length=50, unique=True)
+    password = StringField(max_length=150)
+    admin = BooleanField(default=False)
 
 
-class Activities(Base):
-    __tablename__ = 'activities'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
-    name = Column(String(50), unique=False, nullable=False)
-    activity_start = Column(String(50), unique=False, nullable=False)
-    activity_end = Column(String(50), unique=False, nullable=False)
-    category_id = Column(Integer, ForeignKey("categories.id"))
+class Categories(Document):
+    public_id = IntField(required=True, unique=True)
+    name = StringField(max_length=50)
+    icon_name = StringField(max_length=50)
 
 
-class Categories(Base):
-    __tablename__ = 'categories'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique=False, nullable=False)
-    icon_name = Column(String(50), unique=False, nullable=True)
-    activities = relationship("Activities")
+class Activities(Document):
+    activity_id = UUIDField(binary=False, required=True)
+    name = StringField(max_length=50)
+    user_id = UUIDField(binary=False)
+    activity_start = DateTimeField()
+    activity_end = DateTimeField()
+    category = ReferenceField(Categories)

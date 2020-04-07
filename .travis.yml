@@ -6,14 +6,31 @@ services:
     - docker
 
 before_install:
-    - docker build -t myl-backend:latest api_backend_server/
-    - docker run -d -p 5000:5000 myl-backend:latest
+    - sudo mkdir -p $PWD/mongo_db/data/db
+    - |
+      cat <<-EOF > .env
+      SECRET_KEY=flasksecretkey
+      APISERVERPWD=apiserverpassword
+      APISERVERUSR=apiserveruser
+      MONGOINITDBDATABASE=mongodev
+      MONGOADMINUSR=admin
+      MONGOADMINPWD=example
+      MECONFIGMONGODBPORT=27017
+      EOF
+    - docker-compose up -d
 
 install:
+    - docker ps
     - pip install -r cicd_requirements.txt
 
 script:
-    python3.8 -m pytest api_backend_server/tests/ --doctest-modules --junitxml=junit/test-results.xml --cov=api_backend_server/web_app --cov-report=xml --cov-report=html
+    - |
+      python3.8 -m pytest api_backend_server/tests/ \
+      --doctest-modules \
+      --junitxml=junit/test-results.xml \
+      --cov=api_backend_server/web_app \
+      --cov-report=xml \
+      --cov-report=html
 
 after_success:
     - bash <(curl -s https://codecov.io/bash)

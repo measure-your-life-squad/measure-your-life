@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 import connexion
 
@@ -10,12 +9,15 @@ def server_setup():
 
     app.add_api("openapi.yaml")
 
-    app.app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "very_very_secret_secret")
-    app.app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "SQLALCHEMY_DATABASE_URI",
-        "".join(["sqlite:////", str(Path.cwd().joinpath("local.db"))]),
-    )
-    app.app.config["SQLALCHAMY_TRACK_MODIFICATIONS"] = True
+    app.app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+    app.app.config["MONGODB_SETTINGS"] = {
+        "db": os.getenv("MONGODBNAME", "mongodev"),
+        "host": "mongo",
+        "port": 27017,
+        "username": os.getenv("APISERVERUSR"),
+        "password": os.getenv("APISERVERPWD"),
+    }
 
     return app
 
