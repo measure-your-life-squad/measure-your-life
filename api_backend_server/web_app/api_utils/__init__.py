@@ -56,7 +56,7 @@ def admin_scope_required(f):
         else:
             return jsonify(
                 {
-                    "detail": "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",
+                    "detail": "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",  # NOQA
                     "status": 401,
                     "title": "Unauthorized",
                     "type": "about:blank",
