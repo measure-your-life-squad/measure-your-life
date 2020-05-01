@@ -23,6 +23,9 @@ install:
     - docker ps
     - pip install -r cicd_requirements.txt
 
+before_script:
+    - flake8 api_backend_server/
+
 script:
     - |
       python3.8 -m pytest api_backend_server/tests/ \
