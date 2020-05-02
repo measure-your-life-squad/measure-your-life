@@ -11,6 +11,8 @@ def server_setup():
 
     app.app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
+    app.app.config["SECURITY_PASSWORD_SALT"] = os.getenv("SECURITY_PASSWORD_SALT")
+
     app.app.config["MONGODB_SETTINGS"] = {
         "db": os.getenv("MONGODBNAME", "mongodev"),
         "host": "mongo",

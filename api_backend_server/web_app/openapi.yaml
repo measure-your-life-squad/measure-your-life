@@ -58,6 +58,9 @@ paths:
                 password:
                   type: string
                   example: <user password>
+                email:
+                  type: string
+                  example: tom@example.com
       responses:
         '200':
           description: Successful operation
@@ -106,6 +109,30 @@ paths:
               schema:
                 type: string
                 example: could not verify
+  /api/users/confirm_email:
+    get:
+      tags:
+        - users
+      summary: Email confirmation url
+      operationId: apis.users.confirm_email
+      parameters:
+        - in: query
+          name: token
+          description: Email verification token
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns a message notifying about user email address verification
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successful email verification operation
   /api/users:
     get:
       tags:
@@ -204,12 +231,12 @@ components:
     BasicAuth:
       type: http
       scheme: basic
-      x-basicInfoFunc: api_utils.basic_auth
+      x-basicInfoFunc: api_utils.auth_utils.basic_auth
     jwt:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      x-bearerInfoFunc: api_utils.decode_token
+      x-bearerInfoFunc: api_utils.auth_utils.decode_token
   schemas:
     user:
       type: object
@@ -223,6 +250,9 @@ components:
         public_id:
           type: string
           example: 1130cae9-cbd1-4afe-ac94-d939b7fb4cfa
+        email:
+          type: string
+          example: tom@example.com
     activity:
       type: object
       properties:

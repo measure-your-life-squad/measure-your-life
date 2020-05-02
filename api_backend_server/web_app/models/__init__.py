@@ -6,14 +6,17 @@ from mongoengine import (
     ReferenceField,
     DateTimeField,
     IntField,
+    EmailField,
 )
 
 
 class Users(Document):
     public_id = UUIDField(binary=False, required=True, unique=True)
-    name = StringField(max_length=50, unique=True)
+    username = StringField(max_length=50, unique=True)
     password = StringField(max_length=150)
     admin = BooleanField(default=False)
+    email = EmailField(required=True, unique=True)
+    email_confirmed = BooleanField(default=False)
 
 
 class Categories(Document):
