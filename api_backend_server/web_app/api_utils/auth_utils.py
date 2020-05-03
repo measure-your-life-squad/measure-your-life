@@ -35,6 +35,8 @@ def basic_auth(username, password, required_scopes=None):
 
     info = None
 
+    # TODO: refactor to use Users static method to check if user exists (violates DRY)
+
     try:
         (user,) = Users.objects(username=username)
     except ValueError as e:
@@ -70,14 +72,33 @@ def admin_scope_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
 
-        current_app.logger.info([*kwargs])
-        current_app.logger.info(kwargs["token_info"])
         if kwargs["token_info"]["scope"] == "admin":
             return f(*args, **kwargs)
         else:
             return jsonify(
                 {
                     "detail": "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",  # NOQA
+                    "status": 401,
+                    "title": "Unauthorized",
+                    "type": "about:blank",
+                }
+            )
+
+    return wrapper
+
+
+def confirmed_user_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+
+        (user,) = Users.objects(public_id=kwargs["token_info"]["public_id"])
+
+        if user.email_confirmed:
+            return f(*args, **kwargs)
+        else:
+            return jsonify(
+                {
+                    "detail": "This operation is allowed only for confirmed user accounts. Please confirm your email address.",  # NOQA
                     "status": 401,
                     "title": "Unauthorized",
                     "type": "about:blank",
