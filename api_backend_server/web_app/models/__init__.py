@@ -18,6 +18,24 @@ class Users(Document):
     email = EmailField(required=True, unique=True)
     email_confirmed = BooleanField(default=False)
 
+    @staticmethod
+    def delete_user(public_id):
+        (user,) = Users.objects(public_id=public_id)
+        user.delete()
+
+    @staticmethod
+    def validate_if_existing_user(**kwargs):
+        try:
+            (user,) = Users.objects(**kwargs)
+        except ValueError as e:
+            if (
+                len(e.args) > 0
+                and e.args[0] == "not enough values to unpack (expected 1, got 0)"
+            ):
+                return False
+        else:
+            return True
+
 
 class Categories(Document):
     public_id = IntField(required=True, unique=True)

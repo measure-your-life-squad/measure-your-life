@@ -2,16 +2,15 @@ import datetime
 import uuid
 
 import jwt
-from flask import request, jsonify, current_app, render_template, url_for
+from flask import request, jsonify, current_app
 from werkzeug.security import generate_password_hash
 from mongoengine.errors import NotUniqueError, ValidationError
 
 from models import Users
 from api_utils.auth_utils import admin_scope_required
-from api_utils.email_utils import send_email
+from api_utils.email_utils import send_confirmation_email
 from api_utils.auth_utils import (
     get_url_serializer_and_salt,
-    generate_confirmation_token,
     confirm_token,
 )
 
@@ -52,6 +51,24 @@ def confirm_email(token):
     return jsonify({"message": "Successful email verification operation"}), 200
 
 
+def resend_confirmation_email():
+    data = request.get_json()
+
+    if not Users.validate_if_existing_user(email=data["email"]):
+        return jsonify(
+            {
+                "message": "This email is not linked to any of existing user accounts."
+            }
+        )
+
+    send_email_response = send_confirmation_email(data["email"])
+
+    if send_email_response in range(200, 300):
+        return jsonify({"message": "Confirmation email resent successfully."}), 200
+    else:
+        return jsonify({"message": "Oops, something went wrong :("}), 500
+
+
 def signup_user():
     data = request.get_json()
 
@@ -60,21 +77,21 @@ def signup_user():
     data["admin"] = False
     data["email_confirmed"] = False
 
+    # TODO: saving and deleting the user in case of email confirmation failures are
+    # atomic operations - they should be refactored to a single transaction
+    # (pymongo use may be necessary, mongoengine does not support transactions)
+
     saving_user_outcome = save_user(**data)
 
     if saving_user_outcome["http_code"] != 200:
         return jsonify(saving_user_outcome["payload"]), saving_user_outcome["http_code"]
 
-    safe_url_token_tools = get_url_serializer_and_salt()
-    token = generate_confirmation_token(data["email"], **safe_url_token_tools)
-    confirm_url = url_for(".apis_users_confirm_email", token=token, _external=True)
-    subject = "MYL - Please confirm your email address"
-    msg = render_template("activate_email.html", confirm_url=confirm_url)
-    send_email_response = send_email(data["email"], msg, subject)
+    send_email_response = send_confirmation_email(data["email"])
 
     if send_email_response in range(200, 300):
         return jsonify(saving_user_outcome["payload"]), saving_user_outcome["http_code"]
     else:
+        Users.delete_user(saving_user_outcome["payload"]["user_id"])
         return jsonify({"message": "Oops, something went wrong :("}), 500
 
 
