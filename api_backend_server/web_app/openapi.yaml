@@ -58,6 +58,9 @@ paths:
                 password:
                   type: string
                   example: <user password>
+                email:
+                  type: string
+                  example: tom@example.com
       responses:
         '200':
           description: Successful operation
@@ -106,6 +109,62 @@ paths:
               schema:
                 type: string
                 example: could not verify
+  /api/users/confirmation_email:
+    get:
+      tags:
+        - users
+      summary: Use email confirmation url and verify user account 
+      operationId: apis.users.confirm_email
+      parameters:
+        - in: query
+          name: token
+          description: Email verification token
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Returns a message notifying about user email address verification
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successful email verification operation
+    post:
+      tags:
+        - users
+      summary: Resend email confirmation url to user's email address
+      operationId: apis.users.resend_confirmation_email
+      requestBody:
+        required: True
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/email_confirmation"
+      responses:
+        '200':
+          description: Resends email confirmation url to user's email address.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Confirmation email resent successfully.
+        '500':
+          description: Failed operation to resend email confirmation url
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Oops, something went wrong :(
   /api/users:
     get:
       tags:
@@ -204,12 +263,12 @@ components:
     BasicAuth:
       type: http
       scheme: basic
-      x-basicInfoFunc: api_utils.basic_auth
+      x-basicInfoFunc: api_utils.auth_utils.basic_auth
     jwt:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      x-bearerInfoFunc: api_utils.decode_token
+      x-bearerInfoFunc: api_utils.auth_utils.decode_token
   schemas:
     user:
       type: object
@@ -223,6 +282,15 @@ components:
         public_id:
           type: string
           example: 1130cae9-cbd1-4afe-ac94-d939b7fb4cfa
+        email:
+          type: string
+          example: tom@example.com
+    email_confirmation:
+      type: object
+      properties:
+        email:
+          type: string
+          example: example@email.com
     activity:
       type: object
       properties:

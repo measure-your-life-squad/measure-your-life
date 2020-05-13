@@ -8,8 +8,10 @@ from flask import request, jsonify
 
 from models import Activities
 from apis import categories
+from api_utils import auth_utils
 
 
+@auth_utils.confirmed_user_required
 def create_activity(token_info):
 
     data = request.get_json()
@@ -31,6 +33,7 @@ def create_activity(token_info):
     return jsonify({"message": "new activity record created"}), 200
 
 
+@auth_utils.confirmed_user_required
 def get_user_activities(token_info):
 
     activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")

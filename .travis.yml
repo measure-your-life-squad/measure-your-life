@@ -10,6 +10,7 @@ before_install:
     - |
       cat <<-EOF > .env
       SECRET_KEY=flasksecretkey
+      SECURITY_PASSWORD_SALT=flasksecuritysalt
       APISERVERPWD=apiserverpassword
       APISERVERUSR=apiserveruser
       MONGOINITDBDATABASE=mongodev
