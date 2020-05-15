@@ -1,10 +1,10 @@
 import uuid
 import datetime
-from datetime import timezone as tmzone
+from typing import Tuple
 
 from dateutil import parser as dp
 from dateutil import tz
-from flask import request, jsonify
+from flask import request, jsonify, Response
 
 from models import Activities
 from apis import categories
@@ -12,7 +12,7 @@ from api_utils import auth_utils
 
 
 @auth_utils.confirmed_user_required
-def create_activity(token_info):
+def create_activity(token_info: dict) -> Tuple[Response, int]:
 
     data = request.get_json()
 
@@ -34,7 +34,7 @@ def create_activity(token_info):
 
 
 @auth_utils.confirmed_user_required
-def get_user_activities(token_info):
+def get_user_activities(token_info: dict) -> Tuple[Response, int]:
 
     activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
 
@@ -53,13 +53,13 @@ def get_user_activities(token_info):
     return jsonify({"activities": parsed_activities}), 200
 
 
-def _convert_unix_to_iso8610(unix_timestamp: datetime):
+def _convert_unix_to_iso8610(unix_timestamp: datetime) -> str:
 
-    iso_timestamp = unix_timestamp.replace(tzinfo=tmzone.utc).isoformat()
+    iso_timestamp = unix_timestamp.astimezone(tz.UTC).isoformat()
 
     return iso_timestamp
 
 
-def _parse_to_utc_iso8610(string_timestamp: str):
+def _parse_to_utc_iso8610(string_timestamp: str) -> datetime:
 
     return dp.isoparse(string_timestamp).astimezone(tz.UTC)

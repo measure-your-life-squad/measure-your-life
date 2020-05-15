@@ -1,8 +1,9 @@
 import datetime
 import uuid
+from typing import Tuple
 
 import jwt
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, Response
 from werkzeug.security import generate_password_hash
 from mongoengine.errors import NotUniqueError, ValidationError
 
@@ -69,7 +70,7 @@ def resend_confirmation_email():
         return jsonify({"message": "Oops, something went wrong :("}), 500
 
 
-def signup_user():
+def signup_user() -> Tuple[Response, int]:
     data = request.get_json()
 
     data["password"] = generate_password_hash(data["password"], method="sha256")
@@ -95,7 +96,7 @@ def signup_user():
         return jsonify({"message": "Oops, something went wrong :("}), 500
 
 
-def login_user(token_info):
+def login_user(token_info: dict) -> Response:
 
     token = jwt.encode(
         {
@@ -109,7 +110,7 @@ def login_user(token_info):
 
 
 @admin_scope_required
-def get_all_users(token_info):
+def get_all_users(token_info: dict) -> Tuple[Response, int]:
 
     users = Users.objects.only(
         "public_id", "username", "admin", "email", "email_confirmed"

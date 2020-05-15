@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Callable
 import six
 
 from flask import jsonify, current_app
@@ -31,7 +32,7 @@ def confirm_token(token, serializer, salt, expiration=86400):
     return email
 
 
-def basic_auth(username, password, required_scopes=None):
+def basic_auth(username: str, password: str, required_scopes: str = None) -> dict:
 
     info = None
 
@@ -61,14 +62,14 @@ def basic_auth(username, password, required_scopes=None):
     return info
 
 
-def decode_token(token):
+def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, current_app.config["SECRET_KEY"])
     except DecodeError as e:
         six.raise_from(Unauthorized, e)
 
 
-def admin_scope_required(f):
+def admin_scope_required(f: Callable) -> Callable:
     @wraps(f)
     def wrapper(*args, **kwargs):
 
@@ -87,7 +88,7 @@ def admin_scope_required(f):
     return wrapper
 
 
-def confirmed_user_required(f):
+def confirmed_user_required(f: Callable) -> Callable:
     @wraps(f)
     def wrapper(*args, **kwargs):
 
