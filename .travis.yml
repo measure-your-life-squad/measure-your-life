@@ -10,6 +10,7 @@ before_install:
     - |
       cat <<-EOF > .env
       SECRET_KEY=flasksecretkey
+      SECURITY_PASSWORD_SALT=flasksecuritysalt
       APISERVERPWD=apiserverpassword
       APISERVERUSR=apiserveruser
       MONGOINITDBDATABASE=mongodev
@@ -22,6 +23,9 @@ before_install:
 install:
     - docker ps
     - pip install -r cicd_requirements.txt
+
+before_script:
+    - flake8 api_backend_server/
 
 script:
     - |
