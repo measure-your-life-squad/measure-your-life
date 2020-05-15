@@ -55,7 +55,7 @@ def get_user_activities(token_info: dict) -> Tuple[Response, int]:
 
 def _convert_unix_to_iso8610(unix_timestamp: datetime) -> str:
 
-    iso_timestamp = unix_timestamp.isoformat()
+    iso_timestamp = unix_timestamp.astimezone(tz.UTC).isoformat()
 
     return iso_timestamp
 
