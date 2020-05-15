@@ -1,5 +1,5 @@
-from flask import jsonify
+from flask import jsonify, Response
 
 
-def hello():
+def hello() -> Response:
     return jsonify(message="Hello from Python backend server")

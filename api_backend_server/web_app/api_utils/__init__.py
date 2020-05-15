@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Callable
 import six
 
 from flask import jsonify, current_app
@@ -10,7 +11,7 @@ from jwt.exceptions import DecodeError
 from models import Users
 
 
-def basic_auth(username, password, required_scopes=None):
+def basic_auth(username: str, password: str, required_scopes: str = None) -> dict:
 
     info = None
 
@@ -38,14 +39,14 @@ def basic_auth(username, password, required_scopes=None):
     return info
 
 
-def decode_token(token):
+def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, current_app.config["SECRET_KEY"])
     except DecodeError as e:
         six.raise_from(Unauthorized, e)
 
 
-def admin_scope_required(f):
+def admin_scope_required(f) -> Callable:
     @wraps(f)
     def wrapper(*args, **kwargs):
 
@@ -56,7 +57,7 @@ def admin_scope_required(f):
         else:
             return jsonify(
                 {
-                    "detail": "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.",
+                    "detail": "The server could not verify that you are authorized to access the URL requested. You either supplied the wrong credentials (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.", # NOQA
                     "status": 401,
                     "title": "Unauthorized",
                     "type": "about:blank",

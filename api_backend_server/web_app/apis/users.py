@@ -1,7 +1,8 @@
 import datetime
 import uuid
+from typing import Tuple
 
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, Response
 from werkzeug.security import generate_password_hash
 import jwt
 
@@ -10,7 +11,7 @@ from api_utils import admin_scope_required
 from mongoengine.errors import NotUniqueError
 
 
-def signup_user():
+def signup_user() -> Tuple[Response, int]:
     data = request.get_json()
 
     hashed_password = generate_password_hash(data["password"], method="sha256")
@@ -29,7 +30,7 @@ def signup_user():
     return jsonify({"message": "registered successfuly", "user_id": public_id}), 200
 
 
-def login_user(token_info):
+def login_user(token_info: dict) -> Response:
 
     token = jwt.encode(
         {
@@ -43,7 +44,7 @@ def login_user(token_info):
 
 
 @admin_scope_required
-def get_all_users(token_info):
+def get_all_users(token_info: dict) -> Tuple[Response, int]:
 
     users = Users.objects.only("public_id", "name", "admin",).exclude("id")
 
