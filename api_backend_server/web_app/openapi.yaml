@@ -214,9 +214,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  message:
+                  activity_id:
                     type: string
-                    example: new activity record created
+                    example: 4f175f70-d192-42a4-bd74-6f5b5baf7963
         default:
           description: Unexpected error
     get:
