@@ -54,12 +54,13 @@ class UserRepository with ChangeNotifier {
     }
   }
 
-  Future<bool> signUp(String username, String password) async {
+  Future<bool> signUp(String email, String username, String password) async {
     try {
       _status = Status.Authenticating;
       notifyListeners();
 
       final Map<String, dynamic> authData = {
+        'email': email,
         'username': username,
         'password': password
       };

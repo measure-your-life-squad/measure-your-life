@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/providers/activities_provider.dart';
+import 'package:measure_your_life_app/providers/categories_provider.dart';
 import 'package:measure_your_life_app/widgets/activity_card.dart';
 import 'package:measure_your_life_app/widgets/new_activity_view.dart';
 import 'package:provider/provider.dart';
@@ -16,8 +17,21 @@ class ActivitiesPage extends StatefulWidget {
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => {
+          Provider.of<ActivitiesProvider>(context, listen: false)
+              .fetchActivites(widget.user.token),
+          Provider.of<CategoriesProvider>(context, listen: false)
+              .getCategories(widget.user.token),
+        });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final activitiesProvider = Provider.of<ActivitiesProvider>(context);
+    final categoriesProvider = Provider.of<CategoriesProvider>(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -53,7 +67,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                                 borderRadius: BorderRadius.circular(10.0),
                               ),
                               builder: (BuildContext context) {
-                                return NewActivityView();
+                                return NewActivityView(user: widget.user);
                               },
                             );
                           },
@@ -131,18 +145,30 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
               ),
             ),
             Container(
-              height: 600,
-              child: activitiesProvider.isFetching
-                  ? CircularProgressIndicator()
-                  : ListView.builder(
-                      itemCount: activitiesProvider.getActivites.length,
-                      itemBuilder: (context, index) {
-                        return ActivityCard(
-                          activitiesProvider.getActivites[index],
-                        );
-                      },
-                    ),
-            ),
+                height: 600,
+                child: activitiesProvider.isFetching
+                    ? CircularProgressIndicator()
+                    : (activitiesProvider.getActivites.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No activities found',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black.withOpacity(0.7),
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: activitiesProvider.getActivites.length,
+                            itemBuilder: (context, index) {
+                              return ActivityCard(
+                                activitiesProvider.getActivites[index],
+                                categoriesProvider
+                                    .getCategories(widget.user.token),
+                              );
+                            },
+                          ))),
           ],
         ),
       ),

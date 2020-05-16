@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:measure_your_life_app/providers/categories_provider.dart';
 import 'package:measure_your_life_app/providers/user_repository.dart';
 import 'package:measure_your_life_app/providers/activities_provider.dart';
 import 'package:measure_your_life_app/screens/home.dart';
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => UserRepository()),
         ChangeNotifierProvider(create: (_) => ActivitiesProvider()),
+        ChangeNotifierProvider(create: (_) => CategoriesProvider())
       ],
       child: MaterialApp(
         title: Constants.appTitle,

@@ -15,6 +15,7 @@ class _SignUpViewState extends State<SignUpView> {
   final TextEditingController _passwordTextController = TextEditingController();
 
   final Map<String, dynamic> _formData = {
+    'email': null,
     'username': null,
     'password': null,
   };
@@ -54,6 +55,10 @@ class _SignUpViewState extends State<SignUpView> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    _buildEmailTextField(),
+                    SizedBox(
+                      height: 10,
+                    ),
                     _buildUsernameTextField(),
                     SizedBox(
                       height: 10.0,
@@ -168,7 +173,8 @@ class _SignUpViewState extends State<SignUpView> {
     }
     _formKey.currentState.save();
 
-    if (!await signUp(_formData['username'], _formData['password'])) {
+    if (!await signUp(
+        _formData['email'], _formData['username'], _formData['password'])) {
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -221,6 +227,35 @@ class _SignUpViewState extends State<SignUpView> {
     );
   }
 
+  Widget _buildEmailTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: 'Email',
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: Icon(Icons.mail_outline),
+      ),
+      keyboardType: TextInputType.emailAddress,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Email cannot be empty';
+        }
+
+        if (!RegExp(
+                r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+            .hasMatch(value)) {
+          return 'Email is invalid';
+        }
+
+        return null;
+      },
+      onSaved: (String value) {
+        _formData['email'] = value;
+      },
+    );
+  }
+
   Widget _buildUsernameTextField() {
     return TextFormField(
       decoration: InputDecoration(
@@ -251,7 +286,7 @@ class _SignUpViewState extends State<SignUpView> {
         labelText: 'Password',
         filled: true,
         fillColor: Colors.white,
-        prefixIcon: Icon(Icons.lock),
+        prefixIcon: Icon(Icons.lock_outline),
       ),
       obscureText: true,
       controller: _passwordTextController,
@@ -275,7 +310,7 @@ class _SignUpViewState extends State<SignUpView> {
         labelText: 'Confirm password',
         filled: true,
         fillColor: Colors.white,
-        prefixIcon: Icon(Icons.lock),
+        prefixIcon: Icon(Icons.lock_outline),
       ),
       obscureText: true,
       validator: (String value) {

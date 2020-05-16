@@ -1,31 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:icons_helper/icons_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:measure_your_life_app/models/activity.dart';
 import 'package:measure_your_life_app/models/category.dart';
 
 class ActivityCard extends StatelessWidget {
   final Activity activity;
+  final List<Category> categories;
 
-  ActivityCard(this.activity);
+  ActivityCard(this.activity, this.categories);
 
   @override
   Widget build(BuildContext context) {
     var color;
-    var icon;
-    var categoryName;
 
-    if (Category.WORK == activity.category) {
+    if (categories == null) {
+      return Container();
+    }
+
+    Category category = categories
+        .firstWhere((element) => element.categoryId == activity.category);
+
+    if (category.name == 'work') {
       color = Colors.red[400].withOpacity(0.7);
-      icon = Icons.business;
-      categoryName = 'work';
-    } else if (Category.RESPONSIBILITIES == activity.category) {
+    } else if (category.name == 'duties') {
       color = Colors.orange[400].withOpacity(0.7);
-      icon = Icons.content_paste;
-      categoryName = 'responsibilities';
-    } else {
+    } else if (category.name == 'leisure') {
       color = Colors.green[400].withOpacity(0.7);
-      icon = Icons.event_available;
-      categoryName = 'leisure time';
+    } else {
+      color = Colors.black;
     }
 
     return Container(
@@ -92,7 +95,7 @@ class ActivityCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Icon(
-                          icon,
+                          getIconGuessFavorMaterial(name: category.iconName),
                           color: color,
                           size: 16.0,
                         ),
@@ -100,7 +103,7 @@ class ActivityCard extends StatelessWidget {
                           width: 4.0,
                         ),
                         Text(
-                          categoryName,
+                          category.name,
                           style: TextStyle(
                             color: color,
                             fontSize: 14.0,
