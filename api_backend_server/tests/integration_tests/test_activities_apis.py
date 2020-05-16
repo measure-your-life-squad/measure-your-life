@@ -1,30 +1,67 @@
-import pytest
-import requests
 from collections import namedtuple
 
-@pytest.fixture(scope="module")
-def credentials():
-    Credentials = namedtuple("Credentials", "name category_id activity_start activity_end")
+import pytest
+import requests
+from requests.auth import HTTPBasicAuth
+
+import integration_utils
+
+
+def _get_credentials():
+    Credentials = namedtuple("Credentials", "username password email")
     credentials = Credentials(
-        name="dummy_activity",
-        category_id=1,
-        activity_start="2020-04-30 09:34:35.414677",
-        activity_end="2020-04-30 11:34:35.414677"
+        username="dummyuser",
+        password="minor security threat",
+        email="dummyuser@myl.com",
     )
+
     return credentials
 
 
-def test_create_activity_should_succeed():
+@pytest.fixture(scope="module")
+def activity():
+    Activity = namedtuple("Activity", "name category_id activity_start activity_end")
+    activity = Activity(
+        name="dummy_activity",
+        category_id="1",
+        activity_start="2020-04-30 09:34:35.414677+02:00",
+        activity_end="2020-04-30 11:34:35.414677+02:00"
+    )
+    return activity
 
-    payload = {
-        "name": credentials.name,
-        "category_id":credentials.category_id,
-        "activity_start": credentials.activity_start,
-        "activity_end": credentials.activity_end
-    }
 
-    response = requests.post("http://localhost:5000/api/activity/create_activity", json=payload)
+@pytest.fixture
+def valid_jwt_token(scope="module"):
+    credentials = _get_credentials()
+
+    response = requests.post(
+        "http://localhost:5000/api/users/login",
+        auth=HTTPBasicAuth(credentials.username, credentials.password),
+    )
+
     response_json = response.json()
 
-    assert response_json["message"] == "new activity created"
+    return response_json["token"]
 
+
+def test_create_activity_should_succeed(activity, valid_jwt_token):
+
+    auth_token = valid_jwt_token
+    header = {'Authorization': 'Bearer ' + auth_token}
+
+    payload = {
+        "name": activity.name,
+        "category_id": activity.category_id,
+        "activity_start": activity.activity_start,
+        "activity_end": activity.activity_end
+    }
+
+    response = requests.post(
+        "http://localhost:5000/api/activities",
+        headers=header,
+        json=payload,
+    )
+    response_json = response.json()
+    print(response_json)
+
+    assert integration_utils.is_valid_uuid(response_json["activity_id"])
