@@ -238,6 +238,62 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/activity"
+    delete:
+      tags:
+        - activities
+      summary: Delete a user activity record
+      operationId: apis.activities.delete_user_activity
+      security:
+        - jwt: ['user']
+      parameters:
+        - in: query
+          name: activity_id
+          description: Activity ID that needs to be deleted
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Deletes an activity with provided activity id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Activity 4f175f70-d192-42a4-bd74-6f5b5baf7963 successfully deleted
+    put:
+      tags:
+        - activities
+      summary: Edits a user activity record with data provided in payload
+      operationId: apis.activities.edit_user_activity
+      security:
+        - jwt: ['user']
+      parameters:
+        - in: query
+          name: activity_id
+          description: Activity ID that needs to be updated
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: True
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/activity"
+      responses:
+        '200':
+          description: Updates an activity with provided data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Activity 4f175f70-d192-42a4-bd74-6f5b5baf7963 successfully updated
   /api/categories:
     get:
       tags:
