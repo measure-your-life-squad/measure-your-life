@@ -3,7 +3,13 @@ import uuid
 from typing import Tuple
 
 import jwt
-from flask import request, jsonify, current_app, Response
+from flask import (
+    request,
+    jsonify,
+    current_app,
+    Response,
+    render_template
+)
 from werkzeug.security import generate_password_hash
 from mongoengine.errors import NotUniqueError, ValidationError
 
@@ -42,32 +48,54 @@ def confirm_email(token):
         (user,) = Users.objects(email=email)
     except Exception:
         # TODO: introduce auth logging
-        return jsonify({"message": "The confirmation link is invalid or has expired."})
+        return render_template(
+            "account_confirmation.html",
+            top_m="This confirmation link is invalid or has expired.",
+            bottom_m="You can resend the account confirmation link via the form below.",
+            invalid=True,
+        )
     if user.email_confirmed:
-        return jsonify({"message": "Account already confirmed. Please login."})
+        return render_template(
+            "account_confirmation.html",
+            top_m="Your account is already confirmed!",
+            bottom_m="Don't worry about confirming it again :)",
+        )
     else:
         user.update(set__email_confirmed=True)
-    # TODO: redirect to some default website
 
-    return jsonify({"message": "Successful email verification operation"}), 200
+    return render_template(
+        "account_confirmation.html",
+        top_m=f"Thanks {user.username}! Your account has been successfully confirmed.",
+        bottom_m="Enjoy each and every feature of Measure-Your-Life app :)",
+    )
 
 
 def resend_confirmation_email():
-    data = request.get_json()
+    data = request.form
+
+    # TODO: some weird bug that those templates are returned as jsons although set as
+    # text/html in openapi definition :/
 
     if not Users.validate_if_existing_user(email=data["email"]):
-        return jsonify(
-            {
-                "message": "This email is not linked to any of existing user accounts."
-            }
+        return render_template(
+            "account_confirmation.html",
+            top_m="This email address is not linked to any account :(",
+            bottom_m="You can sign up via the application though!",
         )
-
     send_email_response = send_confirmation_email(data["email"])
 
     if send_email_response in range(200, 300):
-        return jsonify({"message": "Confirmation email resent successfully."}), 200
+        return render_template(
+            "account_confirmation.html",
+            top_m="Confirmation email resent successfully!",
+            bottom_m="You can check your mailbox.",
+        )
     else:
-        return jsonify({"message": "Oops, something went wrong :("}), 500
+        return render_template(
+            "account_confirmation.html",
+            top_m="Oops, something went wrong :(",
+            bottom_m="Please try again later.",
+        )
 
 
 def signup_user() -> Tuple[Response, int]:
