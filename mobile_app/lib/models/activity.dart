@@ -6,14 +6,19 @@ class Activity {
   final DateTime start;
   final DateTime end;
   final int duration;
+  String activityId;
 
-  Activity({
-    @required this.category,
-    @required this.name,
-    @required this.start,
-    @required this.end,
-    @required this.duration,
-  });
+  Activity(
+      {@required this.category,
+      @required this.name,
+      @required this.start,
+      @required this.end,
+      @required this.duration,
+      this.activityId});
+
+  set id(String activityId) {
+    this.activityId = activityId;
+  }
 
   factory Activity.fromJson(Map<String, dynamic> json) {
     var start = DateTime.parse(json['activity_start']);
@@ -24,6 +29,7 @@ class Activity {
       start: start,
       end: end,
       duration: end.difference(start).inMinutes,
+      activityId: json["activity_id"],
     );
   }
 

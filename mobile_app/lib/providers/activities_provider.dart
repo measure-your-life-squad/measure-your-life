@@ -82,6 +82,9 @@ class ActivitiesProvider with ChangeNotifier {
         return false;
       }
 
+      final Map<String, dynamic> responseActivity = json.decode(response.body);
+      activity.id = responseActivity["activity_id"];
+
       _activities.add(activity);
       return true;
     } catch (e) {
