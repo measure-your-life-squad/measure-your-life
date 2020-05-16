@@ -3,6 +3,7 @@ class API {
 
   static final String usersPath = _basePath + '/users';
   static final String activitiesPath = _basePath + '/activities';
+  static final String categoriesPath = _basePath + '/categories';
 
   static final String registerUserUrl = usersPath + '/register';
   static final String loginUserUrl = usersPath + '/login';

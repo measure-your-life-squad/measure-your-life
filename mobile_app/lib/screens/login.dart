@@ -14,8 +14,8 @@ class _LoginPageState extends State<LoginPage> {
   final _key = GlobalKey<ScaffoldState>();
 
   final Map<String, dynamic> _formData = {
-    'username': null,
-    'password': null,
+    'username': '',
+    'password': '',
   };
 
   @override
@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ],
                                 ),
-                                onPressed: () async {
+                                onPressed: () {
                                   _submitForm(userRepository.signIn);
                                 },
                                 color: Theme.of(context).primaryColor,

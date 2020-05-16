@@ -1,19 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/apis/api.dart';
-import 'package:measure_your_life_app/dummydata/activities_data.dart';
 import 'dart:convert';
 import 'package:measure_your_life_app/models/activity.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:measure_your_life_app/models/category.dart';
 
 class ActivitiesProvider with ChangeNotifier {
-  ActivitiesProvider() {
-    fetchActivites();
-  }
-
   List<Activity> _activities = [];
   bool _isFetching = false;
 
@@ -21,37 +13,81 @@ class ActivitiesProvider with ChangeNotifier {
 
   bool get isFetching => _isFetching;
 
-  Future<void> fetchActivites() async {
-    _isFetching = true;
-    notifyListeners();
-    // var response = await http.get(ActivitiesAPI.getActivitesURL);
-    // final Map<String, dynamic> activities = json.decode(response.body);
-    // if (activities == null) {
-    //   _isFetching = false;
-    //   notifyListeners();
-    //   return;
-    // }
+  Future<bool> fetchActivites(String token) async {
+    try {
+      _isFetching = true;
+      notifyListeners();
 
-    // final List<Activity> fetchedActivites = [];
-    // activities.forEach((String id, dynamic activityData) {
-    //   var start = DateTime.parse(activityData['start']);
-    //   var end = DateTime.parse(activityData['end']);
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
 
-    //   final Activity product = Activity(
-    //     category: Category.values.firstWhere(
-    //         (e) => e.toString() == 'Category.' + activityData['category']),
-    //     name: activityData['name'],
-    //     start: start,
-    //     end: end,
-    //     duration: end.difference(start).inMinutes,
-    //   );
-    //   fetchedActivites.add(product);
-    // });
+      final response = await http.get(
+        API.activitiesPath,
+        headers: headers,
+      );
 
-    // _activities = fetchedActivites;
-    // sleep(Duration(seconds: 2));
-    _activities = ActivitiesData.fetchDummyActivities;
-    _isFetching = false;
-    notifyListeners();
+      final Map<String, dynamic> activities = json.decode(response.body);
+      if (activities == null) {
+        _isFetching = false;
+        notifyListeners();
+        return false;
+      }
+
+      var activitiesList = activities['activities'] as List;
+      if (activitiesList == null) {
+        _isFetching = false;
+        notifyListeners();
+        return false;
+      }
+
+      _activities = activitiesList
+          .map((activity) => Activity.fromJson(activity))
+          .toList();
+
+      _isFetching = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print(e);
+      _isFetching = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> addActivity(String token, Activity activity) async {
+    try {
+      _isFetching = true;
+      notifyListeners();
+
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+
+      final response = await http.post(
+        API.activitiesPath,
+        headers: headers,
+        body: json.encode(
+          activity.toJson(),
+        ),
+      );
+
+      _isFetching = false;
+      notifyListeners();
+
+      if (response.statusCode != 200) {
+        return false;
+      }
+
+      _activities.add(activity);
+      return true;
+    } catch (e) {
+      _isFetching = false;
+      notifyListeners();
+      return false;
+    }
   }
 }
