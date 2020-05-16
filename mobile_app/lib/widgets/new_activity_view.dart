@@ -358,7 +358,6 @@ class _NewActivityViewState extends State<NewActivityView> {
       return;
     }
     _formKey.currentState.save();
-    print(_formData);
 
     var start = DateTime.parse(_formData["activitystart"]);
     var end = DateTime.parse(_formData["activityend"]);
