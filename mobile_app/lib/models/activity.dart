@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:measure_your_life_app/models/category.dart';
 
 class Activity {
-  final Category category;
+  final int category;
   final String name;
   final DateTime start;
   final DateTime end;
@@ -15,4 +14,23 @@ class Activity {
     @required this.end,
     @required this.duration,
   });
+
+  factory Activity.fromJson(Map<String, dynamic> json) {
+    var start = DateTime.parse(json['activity_start']);
+    var end = DateTime.parse(json['activity_end']);
+    return Activity(
+      category: json["category"],
+      name: json["name"],
+      start: start,
+      end: end,
+      duration: end.difference(start).inMinutes,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "category_id": category.toString(),
+        "activity_start": start.toString(),
+        "activity_end": end.toString(),
+      };
 }

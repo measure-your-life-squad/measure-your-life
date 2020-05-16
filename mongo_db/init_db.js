@@ -22,20 +22,20 @@ db.categories.insert(
     {
         public_id: 1,
         name: "work",
-        icon_name: "work_icon"
+        icon_name: "business"
     }
 );
 db.categories.insert(
     {
         public_id: 2,
         name: "duties",
-        icon_name: "duties_icon"
+        icon_name: "content_paste"
     }
 );
 db.categories.insert(
     {
         public_id: 3,
         name: "leisure",
-        icon_name: "leisure_icon"
+        icon_name: "event_available"
     }
 );
