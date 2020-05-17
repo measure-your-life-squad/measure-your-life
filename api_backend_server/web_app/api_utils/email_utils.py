@@ -6,7 +6,7 @@ from flask import url_for, render_template
 
 from api_utils.auth_utils import (
     get_url_serializer_and_salt,
-    generate_confirmation_token
+    generate_confirmation_token,
 )
 
 

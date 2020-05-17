@@ -126,13 +126,9 @@ paths:
         '200':
           description: Returns a message notifying about user email address verification
           content: 
-            application/json:
+            text/html:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Successful email verification operation
+                type: string
     post:
       tags:
         - users
@@ -141,30 +137,16 @@ paths:
       requestBody:
         required: True
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               $ref: "#/components/schemas/email_confirmation"
       responses:
         '200':
-          description: Resends email confirmation url to user's email address.
-          content:
-            application/json:
+          description: Returns a message notifying about user email address verification
+          content: 
+            text/html:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Confirmation email resent successfully.
-        '500':
-          description: Failed operation to resend email confirmation url
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Oops, something went wrong :(
+                type: string
   /api/users:
     get:
       tags:
