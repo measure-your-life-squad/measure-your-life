@@ -3,13 +3,7 @@ import uuid
 from typing import Tuple
 
 import jwt
-from flask import (
-    request,
-    jsonify,
-    current_app,
-    Response,
-    render_template
-)
+from flask import request, jsonify, current_app, Response, render_template
 from werkzeug.security import generate_password_hash
 from mongoengine.errors import NotUniqueError, ValidationError
 
@@ -134,7 +128,12 @@ def login_user(token_info: dict) -> Response:
         },
         current_app.config["SECRET_KEY"],
     )
-    return jsonify({"token": token.decode("UTF-8")})
+    return jsonify(
+        {
+            "token": token.decode("UTF-8"),
+            "email_confirmed": token_info["email_confirmed"],
+        }
+    )
 
 
 @admin_scope_required

@@ -19,6 +19,12 @@ class Users(Document):
     email_confirmed = BooleanField(default=False)
 
     @staticmethod
+    def get_specific_user(public_id: str) -> Document:
+        (user,) = Users.objects(public_id=public_id)
+
+        return user
+
+    @staticmethod
     def delete_user(public_id: str) -> bool:
         (user,) = Users.objects(public_id=public_id)
         user.delete()
