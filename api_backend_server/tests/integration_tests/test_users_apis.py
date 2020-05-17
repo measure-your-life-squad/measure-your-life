@@ -34,7 +34,7 @@ def test_user_signup(credentials):
         "email": credentials.email,
     }
 
-    response = requests.post("http://localhost:5000/api/users/register", json=payload)
+    response = requests.post("http://localhost:80/api/users/register", json=payload)
     response_json = response.json()
 
     assert response_json["message"] == "registered successfuly"
@@ -43,7 +43,7 @@ def test_user_signup(credentials):
 
 def test_user_login(credentials):
     response = requests.post(
-        "http://localhost:5000/api/users/login",
+        "http://localhost:80/api/users/login",
         auth=HTTPBasicAuth(credentials.username, credentials.password),
     )
 

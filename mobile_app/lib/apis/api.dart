@@ -1,5 +1,5 @@
 class API {
-  static final String _basePath = 'http://0.0.0.0:5000/api';
+  static final String _basePath = 'http://150.254.30.252:80/api';
 
   static final String usersPath = _basePath + '/users';
   static final String activitiesPath = _basePath + '/activities';
