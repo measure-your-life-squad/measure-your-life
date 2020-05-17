@@ -35,7 +35,7 @@ def valid_jwt_token(scope="module"):
     credentials = _get_credentials()
 
     response = requests.post(
-        "http://localhost:5000/api/users/login",
+        "http://localhost:80/api/users/login",
         auth=HTTPBasicAuth(credentials.username, credentials.password),
     )
 
@@ -57,7 +57,7 @@ def test_create_activity_should_succeed(activity, valid_jwt_token):
     }
 
     response = requests.post(
-        "http://localhost:5000/api/activities",
+        "http://localhost:80/api/activities",
         headers=header,
         json=payload,
     )
