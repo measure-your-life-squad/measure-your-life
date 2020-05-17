@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/apis/api.dart';
 import 'dart:convert';
@@ -81,7 +83,7 @@ class ActivitiesProvider with ChangeNotifier {
       }
 
       final Map<String, dynamic> responseActivity = json.decode(response.body);
-      activity.id = responseActivity["activity_id"];
+      activity.id = responseActivity['activity_id'];
 
       _activities.add(activity);
       return true;
@@ -150,6 +152,7 @@ class ActivitiesProvider with ChangeNotifier {
       }
 
       _activities.remove(activity);
+
       return true;
     } catch (e) {
       processApiException(e);

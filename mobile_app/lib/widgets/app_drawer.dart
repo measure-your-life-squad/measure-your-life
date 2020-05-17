@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:measure_your_life_app/screens/statistics.dart';
 
 class AppDrawer extends StatelessWidget {
   final String username;
@@ -21,12 +22,22 @@ class AppDrawer extends StatelessWidget {
             accountEmail: Text('MeasureYourLife'),
           ),
           ListTile(
+            leading: Icon(Icons.insert_chart),
+            title: Text('Statistics (to be introduced)'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => StatisticsPage()));
+            },
+          ),
+          Divider(),
+          ListTile(
             leading: Icon(Icons.exit_to_app),
             title: Text('Sign out'),
             onTap: () {
               signOut();
             },
-          )
+          ),
         ],
       ),
     );

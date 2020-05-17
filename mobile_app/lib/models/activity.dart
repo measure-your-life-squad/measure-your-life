@@ -24,19 +24,19 @@ class Activity {
     var start = DateTime.parse(json['activity_start']);
     var end = DateTime.parse(json['activity_end']);
     return Activity(
-      category: json["category"],
-      name: json["name"],
+      category: json['category'],
+      name: json['name'],
       start: start,
       end: end,
       duration: end.difference(start).inMinutes,
-      activityId: json["activity_id"],
+      activityId: json['activity_id'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "name": name,
-        "category_id": category.toString(),
-        "activity_start": start.toString(),
-        "activity_end": end.toString(),
+        'name': name,
+        'category_id': category.toString(),
+        'activity_start': start.toString(),
+        'activity_end': end.toString(),
       };
 }
