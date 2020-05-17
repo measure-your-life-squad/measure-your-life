@@ -36,7 +36,8 @@ def basic_auth(username: str, password: str, required_scopes: str = None) -> dic
 
     info = None
 
-    # TODO: refactor to use Users static method to check if user exists (violates DRY)
+    # TODO: refactor to use Users static method to check if user exists and get user
+    # document (violates DRY)
 
     try:
         (user,) = Users.objects(username=username)
@@ -58,6 +59,8 @@ def basic_auth(username: str, password: str, required_scopes: str = None) -> dic
             info = {"sub": "admin", "public_id": str(user.public_id)}
         else:
             info = {"sub": "user", "public_id": str(user.public_id)}
+
+    info.update(email_confirmed=user.email_confirmed)
 
     return info
 
