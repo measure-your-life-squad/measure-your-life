@@ -96,6 +96,9 @@ paths:
                   token:
                     type: string
                     example: <JWT token>
+                  email_confirmed:
+                    type: boolean
+                    example: false
         '401':
           description: Failed login operation
           headers:
