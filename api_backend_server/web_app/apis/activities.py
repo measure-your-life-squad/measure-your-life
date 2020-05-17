@@ -21,6 +21,8 @@ def create_activity(token_info: dict) -> Tuple[Response, int]:
 
     category = Categories.get_specific_category(data["category_id"])
 
+    duration = _calculate_duration_in_mins(start, end)
+
     Activities(
         activity_id=activity_id,
         name=data["name"],
@@ -28,6 +30,7 @@ def create_activity(token_info: dict) -> Tuple[Response, int]:
         activity_start=start,
         activity_end=end,
         category=category,
+        duration=duration,
     ).save()
 
     return jsonify({"activity_id": activity_id}), 200
@@ -87,3 +90,10 @@ def _convert_unix_to_iso8610(unix_timestamp: datetime) -> str:
 def _parse_to_utc_iso8610(string_timestamp: str) -> datetime:
 
     return dp.isoparse(string_timestamp).astimezone(tz.UTC)
+
+
+def _calculate_duration_in_mins(start: datetime, end: datetime) -> float:
+
+    duration = (end - start).total_seconds() / 60
+
+    return duration

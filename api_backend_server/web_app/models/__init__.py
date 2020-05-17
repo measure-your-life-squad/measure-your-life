@@ -7,6 +7,7 @@ from mongoengine import (
     DateTimeField,
     IntField,
     EmailField,
+    FloatField,
 )
 
 
@@ -67,6 +68,7 @@ class Activities(Document):
     activity_start = DateTimeField()
     activity_end = DateTimeField()
     category = ReferenceField(Categories)
+    duration = FloatField(min_value=0)
 
     @staticmethod
     def get_specific_activity(activity_id: str) -> Document:

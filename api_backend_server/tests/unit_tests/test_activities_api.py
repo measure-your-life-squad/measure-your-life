@@ -6,6 +6,7 @@ import pytest
 from api_backend_server.web_app.apis.activities import (
     _parse_to_utc_iso8610,
     _convert_unix_to_iso8610,
+    _calculate_duration_in_mins,
 )
 
 
@@ -35,10 +36,22 @@ def test__parse_to_utc_iso8610_should_throw_exception():
 def test__convert_unix_to_iso8610():
     # given
     utc = timezone("UTC")
-    unix_timestamp = utc.localize(datetime.datetime.fromtimestamp(1588248502))
+    unix_timestamp = utc.localize(datetime.datetime.utcfromtimestamp(1588248502))
 
     # when
     result = _convert_unix_to_iso8610(unix_timestamp)
 
     # then
     assert result == "2020-04-30T12:08:22+00:00"
+
+
+def test__calculate_duration_in_mins():
+    # given
+    start = datetime.datetime(2020, 5, 15, 16, 30, 25)
+    end = datetime.datetime(2020, 5, 15, 20, 45, 25)
+
+    # when
+    duration = _calculate_duration_in_mins(start, end)
+
+    # then
+    assert duration == float(255)
