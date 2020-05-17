@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_helper/icons_helper.dart';
+import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:measure_your_life_app/models/activity.dart';
 import 'package:measure_your_life_app/models/category.dart';
@@ -11,16 +12,17 @@ import 'package:measure_your_life_app/utils/time_converter.dart';
 import 'package:measure_your_life_app/utils/validators.dart';
 import 'package:provider/provider.dart';
 
-class NewActivityView extends StatefulWidget {
+class EditActivityView extends StatefulWidget {
   final User user;
+  final Activity activity;
 
-  NewActivityView({Key key, this.user}) : super(key: key);
+  EditActivityView({Key key, this.user, this.activity}) : super(key: key);
 
   @override
-  _NewActivityViewState createState() => _NewActivityViewState();
+  _EditActivityViewState createState() => _EditActivityViewState();
 }
 
-class _NewActivityViewState extends State<NewActivityView> {
+class _EditActivityViewState extends State<EditActivityView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final Map<String, dynamic> _formData = {
@@ -132,6 +134,10 @@ class _NewActivityViewState extends State<NewActivityView> {
     List<Category> categories =
         categoriesProvider.getCategories(widget.user.token);
 
+    Category category = categories.firstWhere(
+        (category) => category.categoryId == widget.activity.category);
+    dropdownValue = category;
+
     return categoriesProvider.isFetching
         ? Container()
         : DropdownButtonFormField<Category>(
@@ -141,9 +147,11 @@ class _NewActivityViewState extends State<NewActivityView> {
             icon: Icon(
               Icons.category,
             ),
+            onSaved: (Category newValue) {
+              _formData['category_id'] = newValue.categoryId;
+            },
             onChanged: (Category newValue) {
               setState(() {
-                _formData['category_id'] = newValue.categoryId;
                 dropdownValue = newValue;
               });
             },
@@ -177,6 +185,7 @@ class _NewActivityViewState extends State<NewActivityView> {
 
   Widget _buildActivityNameTextField() {
     return TextFormField(
+      initialValue: widget.activity.name,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Activity name',
@@ -186,7 +195,11 @@ class _NewActivityViewState extends State<NewActivityView> {
       ),
       keyboardType: TextInputType.text,
       validator: (String value) {
-        return Validators.validateField(value, 'Activity name');
+        if (value.isEmpty) {
+          return 'Activity name is empty';
+        }
+
+        return null;
       },
       onSaved: (String value) {
         _formData['name'] = value;
@@ -196,10 +209,10 @@ class _NewActivityViewState extends State<NewActivityView> {
 
   Widget _buildActivityStartTextField() {
     return TextFormField(
+      initialValue: DateFormat.Hm().format(widget.activity.start),
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Activity start',
-        hintText: '08:00',
         filled: true,
         fillColor: Colors.white,
         prefixIcon: Icon(Icons.av_timer),
@@ -218,10 +231,10 @@ class _NewActivityViewState extends State<NewActivityView> {
 
   Widget _buildActivityEndTextField() {
     return TextFormField(
+      initialValue: DateFormat.Hm().format(widget.activity.end),
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Activity end',
-        hintText: '12:00',
         filled: true,
         fillColor: Colors.white,
         prefixIcon: Icon(Icons.av_timer),
@@ -238,24 +251,15 @@ class _NewActivityViewState extends State<NewActivityView> {
     );
   }
 
-  void addActivity(Function addActivity) async {
+  void editActivity(Function editActivity) async {
     if (!_formKey.currentState.validate() || dropdownValue == null) {
       return;
     }
     _formKey.currentState.save();
 
-    var start = DateTime.parse(_formData["activitystart"]);
-    var end = DateTime.parse(_formData["activityend"]);
-
-    Activity activity = new Activity(
-      category: _formData['category_id'],
-      name: _formData["name"],
-      start: start,
-      end: end,
-      duration: end.difference(start).inMinutes,
-    );
-
-    if (await addActivity(widget.user.token, activity)) {
+    Activity editedActivity = buildEditedActivity();
+    if (await editActivity(
+        widget.user.token, widget.activity, editedActivity)) {
       Navigator.pop(context);
     } else {
       showDialog(
@@ -263,7 +267,7 @@ class _NewActivityViewState extends State<NewActivityView> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Error'),
-              content: Text('Could not add activity, try again later'),
+              content: Text('Could not update activity, try again later'),
               actions: <Widget>[
                 FlatButton(
                   child: Text('Okay'),
@@ -275,6 +279,21 @@ class _NewActivityViewState extends State<NewActivityView> {
             );
           });
     }
+  }
+
+  Activity buildEditedActivity() {
+    var start = DateTime.parse(_formData["activitystart"]);
+    var end = DateTime.parse(_formData["activityend"]);
+
+    Activity editedActivity = new Activity(
+      activityId: widget.activity.activityId,
+      category: _formData['category_id'],
+      name: _formData["name"],
+      start: start,
+      end: end,
+      duration: end.difference(start).inMinutes,
+    );
+    return editedActivity;
   }
 
   Widget buildButtons(BuildContext context) {
@@ -300,7 +319,7 @@ class _NewActivityViewState extends State<NewActivityView> {
                     child: FittedBox(
                       fit: BoxFit.fitWidth,
                       child: Text(
-                        'Add activity',
+                        'Update activity',
                         style: TextStyle(
                           color: Colors.white,
                         ),
@@ -310,7 +329,7 @@ class _NewActivityViewState extends State<NewActivityView> {
                 ],
               ),
               onPressed: () {
-                addActivity(activitiesProvider.addActivity);
+                editActivity(activitiesProvider.editActivity);
               },
               color: Theme.of(context).primaryColor,
               shape: RoundedRectangleBorder(

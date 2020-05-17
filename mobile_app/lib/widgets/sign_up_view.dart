@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:measure_your_life_app/providers/user_repository.dart';
+import 'package:measure_your_life_app/utils/validators.dart';
 import 'package:provider/provider.dart';
 
 class SignUpView extends StatefulWidget {
@@ -15,9 +16,9 @@ class _SignUpViewState extends State<SignUpView> {
   final TextEditingController _passwordTextController = TextEditingController();
 
   final Map<String, dynamic> _formData = {
-    'email': null,
-    'username': null,
-    'password': null,
+    'email': '',
+    'username': '',
+    'password': '',
   };
 
   @override
@@ -238,17 +239,7 @@ class _SignUpViewState extends State<SignUpView> {
       ),
       keyboardType: TextInputType.emailAddress,
       validator: (String value) {
-        if (value.isEmpty) {
-          return 'Email cannot be empty';
-        }
-
-        if (!RegExp(
-                r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-            .hasMatch(value)) {
-          return 'Email is invalid';
-        }
-
-        return null;
+        return Validators.validateEmail(value, 'Email');
       },
       onSaved: (String value) {
         _formData['email'] = value;
@@ -267,11 +258,7 @@ class _SignUpViewState extends State<SignUpView> {
       ),
       keyboardType: TextInputType.emailAddress,
       validator: (String value) {
-        if (value.isEmpty) {
-          return 'Username cannot be empty';
-        }
-
-        return null;
+        return Validators.validateField(value, 'Username');
       },
       onSaved: (String value) {
         _formData['username'] = value;
@@ -291,11 +278,7 @@ class _SignUpViewState extends State<SignUpView> {
       obscureText: true,
       controller: _passwordTextController,
       validator: (String value) {
-        if (value.isEmpty) {
-          return 'Password cannot be empty';
-        }
-
-        return null;
+        return Validators.validateField(value, 'Password');
       },
       onSaved: (String value) {
         _formData['password'] = value;
@@ -314,14 +297,8 @@ class _SignUpViewState extends State<SignUpView> {
       ),
       obscureText: true,
       validator: (String value) {
-        if (value.isEmpty) {
-          return 'Confirm password cannot be empty';
-        }
-        if (_passwordTextController.text != value) {
-          return 'Passwords do not match';
-        }
-
-        return null;
+        return Validators.validateConfirmedPassword(
+            value, _passwordTextController.text);
       },
     );
   }

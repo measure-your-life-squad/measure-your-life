@@ -51,10 +51,13 @@ class CategoriesProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      print(e);
-      _isFetching = false;
-      notifyListeners();
+      processApiEception(e);
       return false;
     }
+  }
+
+  void processApiEception(e) {
+    _isFetching = false;
+    notifyListeners();
   }
 }

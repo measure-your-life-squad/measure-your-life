@@ -50,9 +50,7 @@ class ActivitiesProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      print(e);
-      _isFetching = false;
-      notifyListeners();
+      processApiException(e);
       return false;
     }
   }
@@ -88,9 +86,80 @@ class ActivitiesProvider with ChangeNotifier {
       _activities.add(activity);
       return true;
     } catch (e) {
-      _isFetching = false;
-      notifyListeners();
+      processApiException(e);
       return false;
     }
+  }
+
+  Future<bool> editActivity(
+      String token, Activity activity, Activity editedActivity) async {
+    try {
+      _isFetching = true;
+      notifyListeners();
+
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+
+      final response = await http.put(
+        API.activitiesPath + '?activity_id=${activity.activityId}',
+        headers: headers,
+        body: json.encode(
+          editedActivity.toJson(),
+        ),
+      );
+
+      _isFetching = false;
+      notifyListeners();
+
+      if (response.statusCode != 200) {
+        return false;
+      }
+
+      int editedActivityIndex = _activities.indexOf(activity);
+      _activities[editedActivityIndex] = editedActivity;
+
+      return true;
+    } catch (e) {
+      processApiException(e);
+      return false;
+    }
+  }
+
+  Future<bool> removeActivity(String token, Activity activity) async {
+    try {
+      _isFetching = true;
+      notifyListeners();
+
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+
+      final response = await http.delete(
+        API.activitiesPath + '?activity_id=${activity.activityId}',
+        headers: headers,
+      );
+
+      _isFetching = false;
+      notifyListeners();
+
+      if (response.statusCode != 200) {
+        return false;
+      }
+
+      _activities.remove(activity);
+      return true;
+    } catch (e) {
+      processApiException(e);
+      return false;
+    }
+  }
+
+  void processApiException(e) {
+    print(e);
+    _isFetching = false;
+    notifyListeners();
   }
 }
