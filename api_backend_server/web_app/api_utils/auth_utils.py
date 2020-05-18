@@ -60,7 +60,7 @@ def basic_auth(username: str, password: str, required_scopes: str = None) -> dic
         else:
             info = {"sub": "user", "public_id": str(user.public_id)}
 
-    info.update(email_confirmed=user.email_confirmed)
+        info.update(email_confirmed=user.email_confirmed)
 
     return info
 
