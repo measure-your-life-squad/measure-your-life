@@ -19,6 +19,8 @@ tags:
     description: Operations about users
   - name: activities
     description: Operations about activities
+  - name: statistics
+    description: Operation about statistics
   - name: categories
     description: Operations about categories
 paths:
@@ -279,6 +281,28 @@ paths:
                   message:
                     type: string
                     example: Activity 4f175f70-d192-42a4-bd74-6f5b5baf7963 successfully updated
+  /api/statistics/meter:
+    get:
+      tags:
+        - statistics
+      summary: Get rolling Work-Duties-Leisure meter
+      operationId: apis.statistics.get_rolling_meter
+      security:
+        - jwt: ['user']
+      parameters:
+        - in: query
+          name: include_unassigned
+          description: Boolean parameter to specify if include unassigned in calculation
+          schema:
+            type: boolean
+          required: false
+      responses:
+        '200':
+          description: Returns a rolling Work-Duties-Leisure meter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/wdl_meter"
   /api/categories:
     get:
       tags:
@@ -351,6 +375,13 @@ components:
           type: string
           description: Category ID
           example: 1
+    wdl_meter:
+      type: object
+      properties:
+        work_portion:
+          type: float
+          description: Work share in provided activities
+          example: 0.65
     category:
       type: object
       properties:
