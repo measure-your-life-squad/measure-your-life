@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:measure_your_life_app/providers/user_repository.dart';
 import 'package:measure_your_life_app/utils/validators.dart';
+import 'package:measure_your_life_app/widgets/app_alert.dart';
 import 'package:provider/provider.dart';
 
 class SignUpView extends StatefulWidget {
@@ -102,9 +103,8 @@ class _SignUpViewState extends State<SignUpView> {
                                     ),
                                   ],
                                 ),
-                                onPressed: () async {
-                                  _submitForm(userRepository.signUp);
-                                },
+                                onPressed: () =>
+                                    _submitForm(userRepository.signUp),
                                 color: Theme.of(context).primaryColor,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30.0),
@@ -115,40 +115,41 @@ class _SignUpViewState extends State<SignUpView> {
                               width: 5.0,
                             ),
                             Container(
-                                width: MediaQuery.of(context).size.width * 0.35,
-                                child: RaisedButton(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.cancel,
-                                        color: Theme.of(context).primaryColor,
+                              width: MediaQuery.of(context).size.width * 0.35,
+                              child: RaisedButton(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.cancel,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 4.0,
                                       ),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          left: 4.0,
-                                        ),
-                                        child: FittedBox(
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
+                                      child: FittedBox(
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(context).primaryColor,
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  onPressed: () => Navigator.pop(context),
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      color: Theme.of(context).primaryColor,
                                     ),
-                                    borderRadius: BorderRadius.circular(30.0),
+                                  ],
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                    color: Theme.of(context).primaryColor,
                                   ),
-                                )),
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -172,28 +173,29 @@ class _SignUpViewState extends State<SignUpView> {
     if (!_formKey.currentState.validate()) {
       return;
     }
+
     _formKey.currentState.save();
 
-    if (!await signUp(
-        _formData['email'], _formData['username'], _formData['password'])) {
+    UserApiResponse response = await signUp(
+        _formData['email'], _formData['username'], _formData['password']);
+    if (response != UserApiResponse.Ok) {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Could not register, try again later'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Okay'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            );
-          });
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Could not register, try again later'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          );
+        },
+      );
     } else {
-      Navigator.pop(context);
+      AppAlert.showRegisterAlert(context, 'Verification email sent');
     }
   }
 

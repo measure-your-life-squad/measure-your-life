@@ -142,37 +142,38 @@ class _NewActivityViewState extends State<NewActivityView> {
               Icons.category,
             ),
             onChanged: (Category newValue) {
-              setState(() {
-                _formData['category_id'] = newValue.categoryId;
-                dropdownValue = newValue;
-              });
+              setState(
+                () {
+                  _formData['category_id'] = newValue.categoryId;
+                  dropdownValue = newValue;
+                },
+              );
             },
             validator: (Category value) {
-              if (value == null) {
-                return 'Activity category is empty';
-              }
-
-              return null;
+              return Validators.validateNullableField(
+                  value, 'Activity category');
             },
-            items: categories.map<DropdownMenuItem<Category>>((Category value) {
-              return DropdownMenuItem<Category>(
-                value: value,
-                child: Container(
-                  child: Row(
-                    children: <Widget>[
-                      Icon(
-                        getIconGuessFavorMaterial(name: value.iconName),
-                        color: Colors.grey[700],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(value.name),
-                    ],
+            items: categories.map<DropdownMenuItem<Category>>(
+              (Category value) {
+                return DropdownMenuItem<Category>(
+                  value: value,
+                  child: Container(
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          getIconGuessFavorMaterial(name: value.iconName),
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(value.name),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList());
+                );
+              },
+            ).toList());
   }
 
   Widget _buildActivityNameTextField() {
@@ -207,8 +208,11 @@ class _NewActivityViewState extends State<NewActivityView> {
       keyboardType: TextInputType.number,
       inputFormatters: [
         MaskTextInputFormatter(
-            mask: "#@:&@", filter: Validators.getHourValidator())
+            mask: '#@:&@', filter: Validators.getHourValidator())
       ],
+      validator: (String value) {
+        return Validators.validateField(value, 'Activity start');
+      },
       onSaved: (String value) {
         DateTime dateTime = TimeConverter.getDateTime(value);
         _formData['activitystart'] = dateTime.toString();
@@ -229,8 +233,11 @@ class _NewActivityViewState extends State<NewActivityView> {
       keyboardType: TextInputType.number,
       inputFormatters: [
         MaskTextInputFormatter(
-            mask: "#@:&@", filter: Validators.getHourValidator())
+            mask: '#@:&@', filter: Validators.getHourValidator())
       ],
+      validator: (String value) {
+        return Validators.validateField(value, 'Activity end');
+      },
       onSaved: (String value) {
         DateTime dateTime = TimeConverter.getDateTime(value);
         _formData['activityend'] = dateTime.toString();
@@ -244,12 +251,12 @@ class _NewActivityViewState extends State<NewActivityView> {
     }
     _formKey.currentState.save();
 
-    var start = DateTime.parse(_formData["activitystart"]);
-    var end = DateTime.parse(_formData["activityend"]);
+    var start = DateTime.parse(_formData['activitystart']);
+    var end = DateTime.parse(_formData['activityend']);
 
-    Activity activity = new Activity(
+    Activity activity = Activity(
       category: _formData['category_id'],
-      name: _formData["name"],
+      name: _formData['name'],
       start: start,
       end: end,
       duration: end.difference(start).inMinutes,
@@ -259,21 +266,20 @@ class _NewActivityViewState extends State<NewActivityView> {
       Navigator.pop(context);
     } else {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Could not add activity, try again later'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Okay'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            );
-          });
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Could not add activity, try again later'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -309,9 +315,7 @@ class _NewActivityViewState extends State<NewActivityView> {
                   ),
                 ],
               ),
-              onPressed: () {
-                addActivity(activitiesProvider.addActivity);
-              },
+              onPressed: () => addActivity(activitiesProvider.addActivity),
               color: Theme.of(context).primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),
@@ -343,9 +347,7 @@ class _NewActivityViewState extends State<NewActivityView> {
                   ),
                 ],
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               color: Colors.white,
               shape: RoundedRectangleBorder(
                 side: BorderSide(

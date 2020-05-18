@@ -156,31 +156,30 @@ class _EditActivityViewState extends State<EditActivityView> {
               });
             },
             validator: (Category value) {
-              if (value == null) {
-                return 'Activity category is empty';
-              }
-
-              return null;
+              return Validators.validateNullableField(
+                  value, 'Activity category');
             },
-            items: categories.map<DropdownMenuItem<Category>>((Category value) {
-              return DropdownMenuItem<Category>(
-                value: value,
-                child: Container(
-                  child: Row(
-                    children: <Widget>[
-                      Icon(
-                        getIconGuessFavorMaterial(name: value.iconName),
-                        color: Colors.grey[700],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(value.name),
-                    ],
+            items: categories.map<DropdownMenuItem<Category>>(
+              (Category value) {
+                return DropdownMenuItem<Category>(
+                  value: value,
+                  child: Container(
+                    child: Row(
+                      children: <Widget>[
+                        Icon(
+                          getIconGuessFavorMaterial(name: value.iconName),
+                          color: Colors.grey[700],
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(value.name),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList());
+                );
+              },
+            ).toList());
   }
 
   Widget _buildActivityNameTextField() {
@@ -195,11 +194,7 @@ class _EditActivityViewState extends State<EditActivityView> {
       ),
       keyboardType: TextInputType.text,
       validator: (String value) {
-        if (value.isEmpty) {
-          return 'Activity name is empty';
-        }
-
-        return null;
+        return Validators.validateField(value, 'Activity name');
       },
       onSaved: (String value) {
         _formData['name'] = value;
@@ -220,7 +215,7 @@ class _EditActivityViewState extends State<EditActivityView> {
       keyboardType: TextInputType.number,
       inputFormatters: [
         MaskTextInputFormatter(
-            mask: "#@:&@", filter: Validators.getHourValidator())
+            mask: '#@:&@', filter: Validators.getHourValidator())
       ],
       onSaved: (String value) {
         DateTime dateTime = TimeConverter.getDateTime(value);
@@ -242,7 +237,7 @@ class _EditActivityViewState extends State<EditActivityView> {
       keyboardType: TextInputType.number,
       inputFormatters: [
         MaskTextInputFormatter(
-            mask: "#@:&@", filter: Validators.getHourValidator())
+            mask: '#@:&@', filter: Validators.getHourValidator())
       ],
       onSaved: (String value) {
         DateTime dateTime = TimeConverter.getDateTime(value);
@@ -263,32 +258,31 @@ class _EditActivityViewState extends State<EditActivityView> {
       Navigator.pop(context);
     } else {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Could not update activity, try again later'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Okay'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            );
-          });
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Could not update activity, try again later'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          );
+        },
+      );
     }
   }
 
   Activity buildEditedActivity() {
-    var start = DateTime.parse(_formData["activitystart"]);
-    var end = DateTime.parse(_formData["activityend"]);
+    var start = DateTime.parse(_formData['activitystart']);
+    var end = DateTime.parse(_formData['activityend']);
 
-    Activity editedActivity = new Activity(
+    Activity editedActivity = Activity(
       activityId: widget.activity.activityId,
       category: _formData['category_id'],
-      name: _formData["name"],
+      name: _formData['name'],
       start: start,
       end: end,
       duration: end.difference(start).inMinutes,
@@ -298,6 +292,7 @@ class _EditActivityViewState extends State<EditActivityView> {
 
   Widget buildButtons(BuildContext context) {
     final activitiesProvider = Provider.of<ActivitiesProvider>(context);
+
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -328,9 +323,7 @@ class _EditActivityViewState extends State<EditActivityView> {
                   ),
                 ],
               ),
-              onPressed: () {
-                editActivity(activitiesProvider.editActivity);
-              },
+              onPressed: () => editActivity(activitiesProvider.editActivity),
               color: Theme.of(context).primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),
@@ -362,9 +355,7 @@ class _EditActivityViewState extends State<EditActivityView> {
                   ),
                 ],
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               color: Colors.white,
               shape: RoundedRectangleBorder(
                 side: BorderSide(

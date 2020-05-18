@@ -30,6 +30,7 @@ dependencies:
   flutter_svg: ^0.17.1
   icons_helper: ^1.0.4
   mask_text_input_formatter: ^1.0.6
+  rflutter_alert: ^1.0.3
 
 dev_dependencies:
   flutter_test:

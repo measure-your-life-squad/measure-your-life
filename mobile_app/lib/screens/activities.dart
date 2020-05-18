@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:measure_your_life_app/models/activity.dart';
 import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/providers/activities_provider.dart';
 import 'package:measure_your_life_app/providers/categories_provider.dart';
 import 'package:measure_your_life_app/providers/user_repository.dart';
 import 'package:measure_your_life_app/widgets/activity_card.dart';
+import 'package:measure_your_life_app/widgets/app_alert.dart';
 import 'package:measure_your_life_app/widgets/app_drawer.dart';
 import 'package:measure_your_life_app/widgets/new_activity_view.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +26,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   void initState() {
     super.initState();
     initiateProviders();
+    initializeDateFormatting();
   }
 
   @override
@@ -55,51 +59,19 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                     ),
                   ),
                   Positioned(
-                    bottom: 10,
-                    left: 0,
+                    bottom: 30,
+                    left: 10,
                     right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        RaisedButton(
-                          onPressed: () {
-                            return showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              builder: (BuildContext context) {
-                                return NewActivityView();
-                              },
-                            );
-                          },
-                          color: Colors.white,
-                          child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.35,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.assessment,
-                                  size: 24,
-                                ),
-                                Text(
-                                  'Statistics',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          elevation: 4.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
+                        Text(
+                          getFormattedDate(),
+                          style: TextStyle(color: Colors.white70, fontSize: 18),
+                        ),
+                        Text(
+                          'Today',
+                          style: TextStyle(color: Colors.white, fontSize: 32),
                         ),
                       ],
                     ),
@@ -111,79 +83,92 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
               height: MediaQuery.of(context).size.height * 0.8,
               width: MediaQuery.of(context).size.width * 0.9,
               child: activitiesProvider.isFetching
-                  ? CircularProgressIndicator()
+                  ? Center(child: CircularProgressIndicator())
                   : (activitiesProvider.getActivites.isEmpty
-                      ? Center(
-                          child: Text(
-                            'No activities found',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black.withOpacity(0.7),
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: activitiesProvider.getActivites.length,
-                          itemBuilder: (context, index) {
-                            Activity activity =
-                                activitiesProvider.getActivites[index];
-                            return Dismissible(
-                              key: Key(activity.activityId),
-                              background: Container(
-                                color: Colors.red,
-                              ),
-                              secondaryBackground: Container(
-                                margin: EdgeInsets.all(4.0),
-                                padding: EdgeInsets.all(8.0),
-                                color: Colors.red,
-                                child: Icon(
-                                  Icons.delete,
-                                  color: Colors.white,
-                                  size:
-                                      MediaQuery.of(context).size.height * 0.03,
-                                ),
-                                alignment: Alignment.centerRight,
-                              ),
-                              direction: DismissDirection.endToStart,
-                              onDismissed: (direction) {
-                                activitiesProvider.removeActivity(
-                                    widget.user.token, activity);
-                                Scaffold.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Delete'),
-                                  ),
-                                );
-                              },
-                              child: ActivityCard(
-                                userRepository.user,
-                                activity,
-                                categoriesProvider
-                                    .getCategories(widget.user.token),
-                              ),
-                            );
-                          },
-                        )),
+                      ? _buildNoActivitiesFoundInfo()
+                      : _buildActivitiesList(activitiesProvider, userRepository,
+                          categoriesProvider)),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-          return showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            builder: (BuildContext context) {
-              return NewActivityView(user: widget.user);
-            },
-          );
-        },
+        onPressed: () => _buildNewActivityView(context),
       ),
     );
+  }
+
+  Center _buildNoActivitiesFoundInfo() {
+    return Center(
+      child: Text(
+        'No activities found',
+        style: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: Colors.black.withOpacity(0.7),
+        ),
+      ),
+    );
+  }
+
+  Future _buildNewActivityView(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      builder: (BuildContext context) {
+        return NewActivityView(user: widget.user);
+      },
+    );
+  }
+
+  ListView _buildActivitiesList(ActivitiesProvider activitiesProvider,
+      UserRepository userRepository, CategoriesProvider categoriesProvider) {
+    return ListView.builder(
+      itemCount: activitiesProvider.getActivites.length,
+      itemBuilder: (context, index) {
+        Activity activity = activitiesProvider.getActivites[index];
+        return Dismissible(
+          key: Key(activity.activityId),
+          background: Container(
+            color: Colors.red,
+          ),
+          secondaryBackground: Container(
+            margin: EdgeInsets.all(4.0),
+            padding: EdgeInsets.all(8.0),
+            color: Colors.red,
+            child: Icon(
+              Icons.delete,
+              color: Colors.white,
+              size: MediaQuery.of(context).size.height * 0.03,
+            ),
+            alignment: Alignment.centerRight,
+          ),
+          direction: DismissDirection.endToStart,
+          onDismissed: (direction) =>
+              _removeActivity(activitiesProvider, activity, context),
+          child: ActivityCard(
+            userRepository.user,
+            activity,
+            categoriesProvider.getCategories(widget.user.token),
+          ),
+        );
+      },
+    );
+  }
+
+  String getFormattedDate() {
+    return DateFormat('EEEE, dd MMMM', 'en').format(DateTime.now());
+  }
+
+  void _removeActivity(ActivitiesProvider activitiesProvider, Activity activity,
+      BuildContext context) async {
+    if (!await activitiesProvider.removeActivity(widget.user.token, activity)) {
+      AppAlert.showAlert(context, 'Could not remove activity');
+    }
   }
 
   void initiateProviders() {

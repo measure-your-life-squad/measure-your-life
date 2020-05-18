@@ -21,6 +21,14 @@ class Validators {
     return null;
   }
 
+  static String validateNullableField(var value, String fieldName) {
+    if (value == null) {
+      return fieldName + ' cannot be empty';
+    }
+
+    return null;
+  }
+
   static String validateConfirmedPassword(
       String repeatedPassword, String password) {
     if (repeatedPassword.isEmpty) {
@@ -35,9 +43,9 @@ class Validators {
 
   static Map<String, RegExp> getHourValidator() {
     return {
-      "#": RegExp(r'[0-2]'),
-      "@": RegExp(r'[0-9]'),
-      "&": RegExp(r'[0-5]')
+      '#': RegExp(r'[0-2]'),
+      '@': RegExp(r'[0-9]'),
+      '&': RegExp(r'[0-5]')
     };
   }
 }

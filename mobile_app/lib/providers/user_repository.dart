@@ -9,6 +9,8 @@ import 'package:measure_your_life_app/models/user.dart';
 
 enum Status { Authenticated, Authenticating, Unauthenticated }
 
+enum UserApiResponse { Ok, MailNotConfirmed, ServerError }
+
 class UserRepository with ChangeNotifier {
   User _user;
   Status _status = Status.Unauthenticated;
@@ -16,7 +18,7 @@ class UserRepository with ChangeNotifier {
   User get user => _user;
   Status get status => _status;
 
-  Future<bool> signIn(String username, String password) async {
+  Future<UserApiResponse> signIn(String username, String password) async {
     try {
       _status = Status.Authenticating;
       notifyListeners();
@@ -38,23 +40,28 @@ class UserRepository with ChangeNotifier {
       notifyListeners();
 
       if (response.statusCode != 200) {
-        return false;
+        return UserApiResponse.ServerError;
       }
 
       final Map<String, dynamic> responseData = json.decode(response.body);
 
-      _user = new User(username: username, token: responseData['token']);
+      if (!responseData['email_confirmed']) {
+        return UserApiResponse.MailNotConfirmed;
+      }
+
+      _user = User(username: username, token: responseData['token']);
       _status = Status.Authenticated;
       notifyListeners();
-      return true;
+      return UserApiResponse.Ok;
     } catch (e) {
       _status = Status.Unauthenticated;
       notifyListeners();
-      return false;
+      return UserApiResponse.ServerError;
     }
   }
 
-  Future<bool> signUp(String email, String username, String password) async {
+  Future<UserApiResponse> signUp(
+      String email, String username, String password) async {
     try {
       _status = Status.Authenticating;
       notifyListeners();
@@ -79,14 +86,14 @@ class UserRepository with ChangeNotifier {
       notifyListeners();
 
       if (response.statusCode != 200) {
-        return false;
+        return UserApiResponse.ServerError;
       }
 
-      return true;
+      return UserApiResponse.Ok;
     } catch (e) {
       _status = Status.Unauthenticated;
       notifyListeners();
-      return false;
+      return UserApiResponse.ServerError;
     }
   }
 
