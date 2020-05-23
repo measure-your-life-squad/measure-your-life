@@ -36,7 +36,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     final userRepository = Provider.of<UserRepository>(context);
 
     return Scaffold(
-      drawer: AppDrawer(widget.user.username, userRepository.signOut),
+      drawer: AppDrawer(widget.user, userRepository.signOut),
       appBar: AppBar(
         elevation: 0.0,
       ),

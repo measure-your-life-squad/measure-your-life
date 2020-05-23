@@ -28,143 +28,167 @@ class _SignUpViewState extends State<SignUpView> {
     return Container(
       key: _key,
       height: MediaQuery.of(context).size.height * 0.9,
-      child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Container(
-                height: 4,
-                width: 60,
-                color: Colors.black.withOpacity(0.3),
-              ),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Container(
+              height: 4,
+              width: 60,
+              color: Colors.black.withOpacity(0.3),
             ),
-            Text(
-              'Register',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.black.withOpacity(0.7),
-              ),
-            ),
-            Expanded(
-              child: _buildSignUpInfo(),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Form(
-                key: _formKey,
+          ),
+          Center(
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    _buildEmailTextField(),
-                    SizedBox(
-                      height: 10,
+                    Text(
+                      'Register',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black.withOpacity(0.7),
+                      ),
                     ),
-                    _buildUsernameTextField(),
                     SizedBox(
-                      height: 10.0,
+                      height: 18,
                     ),
-                    _buildPasswordTextField(),
+                    _buildSignUpInfo(),
                     SizedBox(
-                      height: 10.0,
-                    ),
-                    _buildPasswordConfirmTextField(),
-                    SizedBox(
-                      height: 10.0,
+                      height: 18,
                     ),
                     Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
+                            _buildEmailTextField(),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            _buildUsernameTextField(),
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                            _buildPasswordTextField(),
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                            _buildPasswordConfirmTextField(),
+                            SizedBox(
+                              height: 10.0,
+                            ),
                             Container(
-                              width: MediaQuery.of(context).size.width * 0.35,
-                              child: RaisedButton(
+                              width: MediaQuery.of(context).size.width,
+                              child: Container(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: <Widget>[
-                                    Icon(
-                                      Icons.person_add,
-                                      color: Colors.white,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 4.0,
-                                      ),
-                                      child: FittedBox(
-                                        fit: BoxFit.fitWidth,
-                                        child: Text(
-                                          'Sign up',
-                                          style: TextStyle(color: Colors.white),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.35,
+                                      child: RaisedButton(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Icon(
+                                              Icons.person_add,
+                                              color: Colors.white,
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 4.0,
+                                              ),
+                                              child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text(
+                                                  'Sign up',
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        onPressed: () =>
+                                            _submitForm(userRepository.signUp),
+                                        color: Theme.of(context).primaryColor,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30.0),
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                                onPressed: () =>
-                                    _submitForm(userRepository.signUp),
-                                color: Theme.of(context).primaryColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 5.0,
-                            ),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.35,
-                              child: RaisedButton(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.cancel,
-                                      color: Theme.of(context).primaryColor,
+                                    SizedBox(
+                                      width: 5.0,
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 4.0,
-                                      ),
-                                      child: FittedBox(
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextStyle(
+                                    Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.35,
+                                      child: RaisedButton(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Icon(
+                                              Icons.cancel,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 4.0,
+                                              ),
+                                              child: FittedBox(
+                                                child: Text(
+                                                  'Cancel',
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        onPressed: () => Navigator.pop(context),
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          side: BorderSide(
                                             color:
                                                 Theme.of(context).primaryColor,
                                           ),
+                                          borderRadius:
+                                              BorderRadius.circular(30.0),
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                onPressed: () => Navigator.pop(context),
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
                               ),
                             ),
+                            Container(
+                              height: MediaQuery.of(context).size.height * 0.3,
+                              width: MediaQuery.of(context).size.width * 0.7,
+                              child: SvgPicture.asset(
+                                  'assets/images/register.svg'),
+                            )
                           ],
                         ),
                       ),
                     ),
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      child: SvgPicture.asset('assets/images/register.svg'),
-                    )
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
