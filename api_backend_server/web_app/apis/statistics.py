@@ -1,4 +1,5 @@
 from typing import Tuple
+from math import ceil
 
 from flask import Response, jsonify
 from mongoengine import Document
@@ -13,6 +14,8 @@ CATEGORIES = {
     "LEISURE": "3",
 }
 
+MINS_IN_HOUR = 1440
+
 
 def _calculate_category_duration(user_id: str, category_id: str) -> float:
     category = Categories.get_specific_category(category_id=category_id)
@@ -24,13 +27,6 @@ def _calculate_category_duration(user_id: str, category_id: str) -> float:
     return sum_duration
 
 
-def _calculate_category_share(sum_duration: float, time_window: float):
-
-    share = sum_duration / time_window
-
-    return share
-
-
 def _calculate_time_window(activities: Document) -> float:
 
     min_start = min([activity.activity_start for activity in activities])
@@ -39,6 +35,47 @@ def _calculate_time_window(activities: Document) -> float:
     time_window = (max_end - min_start).total_seconds() / 60
 
     return time_window
+
+
+def _calculate_daily_average(sum_duration: float, time_window: float) -> int:
+    days_rounded_up = ceil(time_window / MINS_IN_HOUR)
+
+    daily_average = sum_duration / days_rounded_up
+
+    return int(daily_average)
+
+
+def _calculate_category_share(sum_duration: float, time_window: float):
+
+    share = sum_duration / time_window
+
+    return share
+
+
+def _build_shared_json(time_window: float, user_id: str) -> dict:
+    result = {}
+    for cat, cat_id in CATEGORIES.items():
+
+        duration = _calculate_category_duration(user_id, cat_id)
+
+        share = _calculate_category_share(duration, time_window)
+
+        result.update({cat: share})
+
+    return result
+
+
+def _build_averages_json(time_window: float, user_id: str) -> dict:
+    result = {}
+    for cat, cat_id in CATEGORIES.items():
+
+        duration = _calculate_category_duration(user_id, cat_id)
+
+        average = _calculate_daily_average(duration, time_window)
+
+        result.update({f"{cat}_AVG": average})
+
+    return result
 
 
 @auth_utils.confirmed_user_required
@@ -52,13 +89,10 @@ def get_rolling_meter(
     else:
         time_window = sum([activity.duration for activity in activities])
 
-    result = {}
-    for cat, cat_id in CATEGORIES.items():
+    share_response = _build_shared_json(time_window, token_info["public_id"])
 
-        duration = _calculate_category_duration(token_info["public_id"], cat_id)
+    average_response = _build_averages_json(time_window, token_info["public_id"])
 
-        share = _calculate_category_share(duration, time_window)
+    share_response.update(average_response)
 
-        result.update({cat: share})
-
-    return jsonify(result)
+    return jsonify(share_response)

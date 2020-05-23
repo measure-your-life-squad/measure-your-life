@@ -22,9 +22,9 @@ class Statistics {
       dutiesRatio: json['DUTIES'],
       leisureRatio: json['LEISURE'],
       workRatio: json['WORK'],
-      dutiesAvg: 60, // TODO: Load from API
-      leisureAvg: 60, // TODO: Load from API
-      workAvg: 120, // TODO: Load from API
+      dutiesAvg: json['DUTIES_AVG'],
+      leisureAvg: json['LEISURE_AVG'],
+      workAvg: json['WORK_AVG'],
     );
   }
 }

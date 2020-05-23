@@ -378,10 +378,30 @@ components:
     wdl_meter:
       type: object
       properties:
-        work_portion:
+        WORK:
           type: float
           description: Work share in provided activities
           example: 0.65
+        DUTIES:
+          type: float
+          description: Duties share in provided activities
+          example: 0.15
+        LEISURE:
+          type: float
+          description: Leisure share in provided activities
+          example: 0.20
+        WORK_AVG:
+          type: int
+          description: Work daily average in minutes
+          example: 240
+        DUTIES_AVG:
+          type: int
+          description: Duties daily average in minutes
+          example: 120
+        LEISURE:
+          type: int
+          description: Leisure daily average in minutes
+          example: 60
     category:
       type: object
       properties:
