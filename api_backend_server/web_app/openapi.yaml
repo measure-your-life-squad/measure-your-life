@@ -204,6 +204,16 @@ paths:
                   activity_id:
                     type: string
                     example: 4f175f70-d192-42a4-bd74-6f5b5baf7963
+        '422':
+          description: Posted activity time is overlapping with already stored activities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                   message:
+                    type: string
+                    example: Time overalapping with already stored activities
         default:
           description: Unexpected error
     get:
