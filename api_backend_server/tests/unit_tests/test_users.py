@@ -4,7 +4,7 @@ from models import Users
 
 import unittest
 from mongoengine import connect, disconnect
-from mongoengine.errors import NotUniqueError, ValidationError
+# from mongoengine.errors import NotUniqueError, ValidationError
 
 
 class TestSaveUserShouldSucceed(unittest.TestCase):
@@ -33,10 +33,12 @@ class TestSaveUserShouldSucceed(unittest.TestCase):
         assert fresh_user.username == 'testusername'
 
         assert fresh_user_save['payload'] == {"message": "registered successfuly",
-                                              "user_id": '3b241101-e2bb-4255-8caf-4136c566a962'}
+                                              "user_id":
+                                              '3b241101-e2bb-4255-8caf-4136c566a962'}
         assert fresh_user_save['http_code'] == 200
         assert fresh_user2_save['payload'] == {"message": "registered successfuly",
-                                               "user_id": '3b241101-e2bb-4255-8caf-4136c566a964'}
+                                               "user_id":
+                                               '3b241101-e2bb-4255-8caf-4136c566a964'}
         assert fresh_user2_save['http_code'] == 200
 
 
@@ -63,7 +65,8 @@ class TestSaveUserThrowExceptionNotUniqueUsername(unittest.TestCase):
                                   email='2testmail2@mail.com')
 
         assert fresh_user['payload'] == {"message": "registered successfuly",
-                                         "user_id": '3b241101-e2bb-4255-8caf-4136c566a964'}
+                                         "user_id":
+                                         '3b241101-e2bb-4255-8caf-4136c566a964'}
         assert fresh_user['http_code'] == 200
         assert repeated_user['payload'] == {
             "message": "username or email address already in use"}
@@ -93,7 +96,8 @@ class TestSaveUserThrowExceptionNotUniqueEmail(unittest.TestCase):
                                   email='testmail@mail.com')
 
         assert fresh_user['payload'] == {"message": "registered successfuly",
-                                         "user_id": '3b241101-e2bb-4255-8caf-4136c566a964'}
+                                         "user_id":
+                                         '3b241101-e2bb-4255-8caf-4136c566a964'}
         assert fresh_user['http_code'] == 200
         assert repeated_user['payload'] == {
             "message": "username or email address already in use"}
