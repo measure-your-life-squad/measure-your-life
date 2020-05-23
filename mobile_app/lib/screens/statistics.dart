@@ -68,7 +68,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   ),
                 ),
                 Positioned(
-                  bottom: 30,
+                  bottom: 10,
                   left: 10,
                   right: 0,
                   child: Column(
