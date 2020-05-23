@@ -59,7 +59,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                     ),
                   ),
                   Positioned(
-                    bottom: 30,
+                    bottom: 10,
                     left: 10,
                     right: 0,
                     child: Column(
