@@ -71,7 +71,20 @@ def edit_user_activity(token_info: dict, activity_id: str) -> Tuple[Response, in
 
     category = Categories.get_specific_category(data.pop("category_id"))
 
+    start = _parse_to_utc_iso8610(data["activity_start"])
+    end = _parse_to_utc_iso8610(data["activity_end"])
+
     data.update(category=category)
+
+    data.update(
+        duration=_calculate_duration_in_mins(
+            start,
+            end
+        )
+    )
+
+    data["activity_start"] = start
+    data["activity_end"] = end
 
     updated_activity = Activities.edit_specific_activity(activity_id, **data)
 
