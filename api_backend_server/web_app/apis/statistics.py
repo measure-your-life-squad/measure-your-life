@@ -14,7 +14,7 @@ CATEGORIES = {
     "LEISURE": "3",
 }
 
-MINS_IN_HOUR = 1440
+MINS_IN_DAY = 1440
 
 
 def _calculate_category_duration(user_id: str, category_id: str) -> float:
@@ -38,7 +38,7 @@ def _calculate_time_window(activities: Document) -> float:
 
 
 def _calculate_daily_average(sum_duration: float, time_window: float) -> int:
-    days_rounded_up = ceil(time_window / MINS_IN_HOUR)
+    days_rounded_up = ceil(time_window / MINS_IN_DAY)
 
     daily_average = sum_duration / days_rounded_up
 
