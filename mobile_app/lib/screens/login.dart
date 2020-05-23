@@ -29,13 +29,19 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: SingleChildScrollView(
             child: Container(
+              alignment: Alignment.center,
               width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.5,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   _buildAppLogo(),
-                  Expanded(child: _buildGreetings()),
+                  SizedBox(
+                    height: 18.0,
+                  ),
+                  _buildGreetings(),
+                  SizedBox(
+                    height: 18.0,
+                  ),
                   Container(
                     child: Form(
                       key: _formKey,

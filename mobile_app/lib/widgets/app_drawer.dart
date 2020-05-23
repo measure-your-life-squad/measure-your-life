@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/screens/statistics.dart';
 
 class AppDrawer extends StatelessWidget {
-  final String username;
+  final User user;
   final Function signOut;
 
-  AppDrawer(this.username, this.signOut);
+  AppDrawer(this.user, this.signOut);
 
   @override
   Widget build(BuildContext context) {
@@ -16,18 +17,24 @@ class AppDrawer extends StatelessWidget {
           UserAccountsDrawerHeader(
             margin: EdgeInsets.zero,
             accountName: Text(
-              _getGreetingsMessage(username),
+              _getGreetingsMessage(user.username),
               style: TextStyle(fontSize: 24.0),
             ),
             accountEmail: Text('MeasureYourLife'),
           ),
           ListTile(
             leading: Icon(Icons.insert_chart),
-            title: Text('Statistics (to be introduced)'),
+            title: Text('Statistics (beta)'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => StatisticsPage()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StatisticsPage(
+                    user: user,
+                  ),
+                ),
+              );
             },
           ),
           Divider(),
