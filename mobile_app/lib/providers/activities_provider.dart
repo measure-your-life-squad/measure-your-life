@@ -48,6 +48,10 @@ class ActivitiesProvider with ChangeNotifier {
           .map((activity) => Activity.fromJson(activity))
           .toList();
 
+      _activities.sort((a,b) {
+        return a.start.compareTo(b.start);
+      });
+
       _isFetching = false;
       notifyListeners();
       return true;
@@ -86,6 +90,11 @@ class ActivitiesProvider with ChangeNotifier {
       activity.id = responseActivity['activity_id'];
 
       _activities.add(activity);
+
+      _activities.sort((a,b) {
+        return a.start.compareTo(b.start);
+      });
+
       return true;
     } catch (e) {
       processApiException(e);
