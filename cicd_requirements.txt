@@ -11,3 +11,5 @@ pytest==5.3.3
 pytest-cov==2.8.1
 flake8==3.7.9
 pytz==2020.1
+mongomock==3.19.0
+
