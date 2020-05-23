@@ -20,8 +20,7 @@ def create_activity(token_info: dict) -> Tuple[Response, int]:
 
     if not _validate_time_not_overlapping(start, end, token_info):
         return jsonify({'message':
-                        """Change start or end time of activity
-                        due to overlapping activities"""}), 422
+                        "Change start or end time of activity due to overlapping activities"}), 422  # NOQA
 
     activity_id = str(uuid.uuid4())
 
@@ -45,17 +44,17 @@ def create_activity(token_info: dict) -> Tuple[Response, int]:
 def _validate_time_not_overlapping(activity_start, activity_end, token_info: dict):
 
     activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
-    activity_starting_time_or_ending_time = [
+    activity_starting_time_and_ending_time = [
         {
             "activity_start": _convert_unix_to_iso8610(activity.activity_start),
             "activity_end": _convert_unix_to_iso8610(activity.activity_end)}
         for activity in activities
     ]
 
-    for i in range(len(activity_starting_time_or_ending_time)):
-        if activity_start < activity_starting_time_or_ending_time[i]['activity_end'] \
+    for i in range(len(activity_starting_time_and_ending_time)):
+        if activity_start < activity_starting_time_and_ending_time[i]['activity_end'] \
             and activity_end > \
-                activity_starting_time_or_ending_time[i]['activity_start']:
+                activity_starting_time_and_ending_time[i]['activity_start']:
             return False
         else:
             return True
