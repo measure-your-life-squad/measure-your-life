@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:icons_helper/icons_helper.dart';
 import 'package:measure_your_life_app/models/category.dart';
@@ -21,6 +23,8 @@ class StatisticsPage extends StatefulWidget {
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
+  bool oldDate = true;
+
   @override
   void initState() {
     super.initState();
@@ -37,18 +41,23 @@ class _StatisticsPageState extends State<StatisticsPage> {
         elevation: 0.0,
         centerTitle: true,
       ),
-      body: statisticsProvider.isFetching || categoriesProvider.isFetching
+      body: statisticsProvider.isFetching ||
+              categoriesProvider.isFetching ||
+              statisticsProvider.isFetchingOldestDate
           ? Center(child: CircularProgressIndicator())
           : _buildStatistics(
               statisticsProvider.statistics,
               categoriesProvider.getCategories(
                 widget.user.token,
               ),
+              statisticsProvider.oldestDate,
+              statisticsProvider.getStatistics,
             ),
     );
   }
 
-  Widget _buildStatistics(Statistics statistics, List<Category> categories) {
+  Widget _buildStatistics(Statistics statistics, List<Category> categories,
+      OldestDate oldestDate, Function getStats) {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -92,6 +101,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
             padding: EdgeInsets.all(16.0),
             child: Column(
               children: <Widget>[
+                _buildActivityStartTextField(oldestDate, getStats, oldDate),
+                _buildActivityEndTextField(getStats),
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(15.0),
+            child: Column(
+              children: <Widget>[
                 _buildLifeBalanceStatistics(statistics),
                 _buildAverageDailyTimesStatistics(categories, statistics),
               ],
@@ -122,7 +140,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
-                  height: MediaQuery.of(context).size.height * 0.3,
+                  height: MediaQuery.of(context).size.height * 0.33,
                   child: charts.PieChart(
                     _getStatistics(statistics),
                     behaviors: [
@@ -177,10 +195,143 @@ class _StatisticsPageState extends State<StatisticsPage> {
   void initiateProviders() {
     Future.microtask(() => {
           Provider.of<StatisticsProvider>(context, listen: false)
-              .getStatistics(widget.user.token),
+              .getOldestDate(widget.user.token),
+          Provider.of<StatisticsProvider>(context, listen: false).getStatistics(
+            widget.user.token,
+          ),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });
+  }
+
+  String _getOldestDate(OldestDate oldestDate) {
+    return DateFormat("dd MMMM yyyy")
+        .format(DateTime.parse(oldestDate.oldestDate));
+  }
+
+  var _startTimeController = TextEditingController();
+  var startTimeDate;
+  var _endTimeController = TextEditingController(
+      text: DateFormat("dd MMMM yyyy").format(DateTime.now()));
+  var endTimeDate;
+
+  showPickerDateRange(BuildContext context, Function getStats) {
+    Picker ps = Picker(
+        hideHeader: true,
+        adapter: DateTimePickerAdapter(
+          value: DateTime.now(),
+          minuteInterval: 15,
+          type: PickerDateTimeType.kDMY,
+        ),
+        onConfirm: (Picker picker, List value) {
+          startTimeDate = (picker.adapter as DateTimePickerAdapter).value;
+          _startTimeController.text = DateFormat("dd MMMM yyyy")
+              .format((picker.adapter as DateTimePickerAdapter).value);
+        });
+
+    Picker pe = Picker(
+        hideHeader: true,
+        adapter: DateTimePickerAdapter(
+          value: DateTime.now(),
+          type: PickerDateTimeType.kDMY,
+        ),
+        onConfirm: (Picker picker, List value) {
+          endTimeDate = (picker.adapter as DateTimePickerAdapter).value;
+          _endTimeController.text = DateFormat("dd MMMM yyyy")
+              .format((picker.adapter as DateTimePickerAdapter).value);
+        });
+
+    List<Widget> actions = [
+      FlatButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(PickerLocalizations.of(context).cancelText)),
+      FlatButton(
+          onPressed: () {
+            oldDate = false;
+            Navigator.pop(context);
+            ps.onConfirm(ps, ps.selecteds);
+            pe.onConfirm(pe, pe.selecteds);
+            _getStats(getStats);
+          },
+          child: Text(PickerLocalizations.of(context).confirmText))
+    ];
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Select Date Range"),
+            actions: actions,
+            content: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text("Begin:"),
+                  ps.makePicker(),
+                  Text("End:"),
+                  pe.makePicker()
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  Widget _buildActivityStartTextField(
+      OldestDate oldestDate, Function getStats, bool oldDate) {
+    _startTimeController.text =
+        oldDate ? _getOldestDate(oldestDate) : _startTimeController.text;
+    return TextFormField(
+      controller: _startTimeController,
+      readOnly: true,
+      enabled: true,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: 'Statistics Date Range',
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: Icon(Icons.av_timer),
+      ),
+      keyboardType: TextInputType.text,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Activity start time is empty';
+        }
+
+        return null;
+      },
+      onTap: () {
+        showPickerDateRange(context, getStats);
+      },
+    );
+  }
+
+  Widget _buildActivityEndTextField(Function getStats) {
+    return TextFormField(
+      controller: _endTimeController,
+      readOnly: true,
+      enabled: true,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: Icon(Icons.av_timer),
+      ),
+      keyboardType: TextInputType.text,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Activity end time is empty';
+        }
+
+        return null;
+      },
+      onTap: () {
+        showPickerDateRange(context, getStats);
+      },
+    );
   }
 
   Widget _buildAverageDailyTimesStatistics(
@@ -202,8 +353,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 alignment: Alignment.centerLeft,
               ),
               Container(
-                width: MediaQuery.of(context).size.width * 0.6,
-                height: MediaQuery.of(context).size.height * 0.2,
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: MediaQuery.of(context).size.height * 0.18,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
@@ -273,7 +424,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             ],
           ),
           Text(
-            avg.toString() + ' mins',
+            (avg / 60).toString() + ' hrs',
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
@@ -282,6 +433,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _getStats(Function getStats) async {
+    var formattedStartDate = DateTime(
+        startTimeDate.year, startTimeDate.month, startTimeDate.day, 0, 0);
+    var formattedEndDate =
+        DateTime(endTimeDate.year, endTimeDate.month, endTimeDate.day, 23, 59);
+    await getStats(
+      widget.user.token,
+      startRange: formattedStartDate.toString(),
+      endRange: formattedEndDate.toString(),
     );
   }
 }
