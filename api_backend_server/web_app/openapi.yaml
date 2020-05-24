@@ -19,8 +19,6 @@ tags:
     description: Operations about users
   - name: activities
     description: Operations about activities
-  - name: statistics
-    description: Operation about statistics
   - name: categories
     description: Operations about categories
 paths:
@@ -315,25 +313,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/wdl_meter"
-  /api/statistics/oldest:
-    get:
-      tags:
-        - statistics
-      summary: Get the oldest activity start date for a user
-      operationId: apis.statistics.get_oldest_date
-      security:
-        - jwt: ['user']
-      responses:
-        '200':
-          description: Returns the oldest activity start date for a user in ISO-8601 UTC
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  oldest_date:
-                    type: string
-                    example: "2020-03-15T15:27:44,098807487+00:00"
   /api/categories:
     get:
       tags:
@@ -409,30 +388,10 @@ components:
     wdl_meter:
       type: object
       properties:
-        WORK:
+        work_portion:
           type: float
           description: Work share in provided activities
           example: 0.65
-        DUTIES:
-          type: float
-          description: Duties share in provided activities
-          example: 0.15
-        LEISURE:
-          type: float
-          description: Leisure share in provided activities
-          example: 0.20
-        WORK_AVG:
-          type: int
-          description: Work daily average in minutes
-          example: 240
-        DUTIES_AVG:
-          type: int
-          description: Duties daily average in minutes
-          example: 120
-        LEISURE:
-          type: int
-          description: Leisure daily average in minutes
-          example: 60
     category:
       type: object
       properties:
