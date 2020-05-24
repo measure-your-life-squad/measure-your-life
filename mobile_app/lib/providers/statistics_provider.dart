@@ -71,14 +71,10 @@ class StatisticsProvider with ChangeNotifier {
         'Authorization': 'Bearer $token'
       };
 
-      print(API.oldestdatePath);
-
       final response = await http.get(
         API.oldestdatePath,
         headers: headers,
       );
-
-      print(response.body);
 
       final Map<String, dynamic> oldestDate = json.decode(response.body);
 

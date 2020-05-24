@@ -33,10 +33,17 @@ class Activity {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'category_id': category.toString(),
-        'activity_start': start.toString(),
-        'activity_end': end.toString(),
-      };
+  Map<String, dynamic> toJson(DateTime date) {
+    var selectedStart =
+        DateTime(date.year, date.month, date.day, start.hour, start.minute);
+    var selectedEnd =
+        DateTime(date.year, date.month, date.day, end.hour, end.minute);
+
+    return {
+      'name': name,
+      'category_id': category.toString(),
+      'activity_start': selectedStart.toString(),
+      'activity_end': selectedEnd.toString(),
+    };
+  }
 }

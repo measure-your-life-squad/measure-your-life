@@ -13,8 +13,9 @@ import 'package:provider/provider.dart';
 
 class NewActivityView extends StatefulWidget {
   final User user;
+  final DateTime selectedDate;
 
-  NewActivityView({Key key, this.user}) : super(key: key);
+  NewActivityView({Key key, this.user, this.selectedDate}) : super(key: key);
 
   @override
   _NewActivityViewState createState() => _NewActivityViewState();
@@ -262,9 +263,12 @@ class _NewActivityViewState extends State<NewActivityView> {
       duration: end.difference(start).inMinutes,
     );
 
-    if (await addActivity(widget.user.token, activity) == 200) {
+    if (await addActivity(widget.user.token, activity, widget.selectedDate) ==
+        200) {
       Navigator.pop(context);
-    } else if (await addActivity(widget.user.token, activity) == 422){
+    } else if (await addActivity(
+            widget.user.token, activity, widget.selectedDate) ==
+        422) {
       showDialog(
         context: context,
         builder: (BuildContext context) {

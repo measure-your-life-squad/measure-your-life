@@ -15,7 +15,7 @@ class ActivitiesProvider with ChangeNotifier {
 
   bool get isFetching => _isFetching;
 
-  Future<bool> fetchActivites(String token) async {
+  Future<bool> fetchActivites(String token, DateTime date) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -46,9 +46,12 @@ class ActivitiesProvider with ChangeNotifier {
 
       _activities = activitiesList
           .map((activity) => Activity.fromJson(activity))
+          .where((activity) =>
+              activity.end.difference(date).inDays == 0 &&
+              activity.end.day == date.day)
           .toList();
 
-      _activities.sort((a,b) {
+      _activities.sort((a, b) {
         return a.start.compareTo(b.start);
       });
 
@@ -61,7 +64,8 @@ class ActivitiesProvider with ChangeNotifier {
     }
   }
 
-  Future<int> addActivity(String token, Activity activity) async {
+  Future<int> addActivity(
+      String token, Activity activity, DateTime selectedDate) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -75,7 +79,7 @@ class ActivitiesProvider with ChangeNotifier {
         API.activitiesPath,
         headers: headers,
         body: json.encode(
-          activity.toJson(),
+          activity.toJson(selectedDate),
         ),
       );
 
@@ -91,7 +95,7 @@ class ActivitiesProvider with ChangeNotifier {
 
       _activities.add(activity);
 
-      _activities.sort((a,b) {
+      _activities.sort((a, b) {
         return a.start.compareTo(b.start);
       });
 
@@ -117,7 +121,7 @@ class ActivitiesProvider with ChangeNotifier {
         API.activitiesPath + '?activity_id=${activity.activityId}',
         headers: headers,
         body: json.encode(
-          editedActivity.toJson(),
+          editedActivity.toJson(activity.start),
         ),
       );
 

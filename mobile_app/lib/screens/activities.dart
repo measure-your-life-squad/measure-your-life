@@ -22,11 +22,31 @@ class ActivitiesPage extends StatefulWidget {
 }
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
+  var _selectedDate = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     initiateProviders();
     initializeDateFormatting();
+  }
+
+  void _presentDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = pickedDate.add(Duration(hours: 2));
+        Provider.of<ActivitiesProvider>(context, listen: false)
+            .fetchActivites(widget.user.token, _selectedDate);
+      });
+    });
   }
 
   @override
@@ -62,18 +82,41 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                     bottom: 10,
                     left: 10,
                     right: 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          getFormattedDate(),
-                          style: TextStyle(color: Colors.white70, fontSize: 18),
-                        ),
-                        Text(
-                          'Today',
-                          style: TextStyle(color: Colors.white, fontSize: 32),
-                        ),
-                      ],
+                    child: InkWell(
+                      onTap: () {
+                        _presentDatePicker();
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            getFormattedDate(),
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 18),
+                          ),
+                          Row(
+                            children: <Widget>[
+                              Text(
+                                _selectedDate
+                                            .difference(DateTime.now())
+                                            .inDays ==
+                                        0
+                                    ? 'Today'
+                                    : 'Selected',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 32),
+                              ),
+                              SizedBox(
+                                width: 8.0,
+                              ),
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 ],
@@ -94,7 +137,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () => _buildNewActivityView(context),
+        onPressed: () => _buildNewActivityView(context, _selectedDate),
       ),
     );
   }
@@ -112,7 +155,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     );
   }
 
-  Future _buildNewActivityView(BuildContext context) {
+  Future _buildNewActivityView(BuildContext context, DateTime selectedDate) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -120,7 +163,10 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
         borderRadius: BorderRadius.circular(10.0),
       ),
       builder: (BuildContext context) {
-        return NewActivityView(user: widget.user);
+        return NewActivityView(
+          user: widget.user,
+          selectedDate: selectedDate,
+        );
       },
     );
   }
@@ -161,7 +207,8 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   }
 
   String getFormattedDate() {
-    return DateFormat('EEEE, dd MMMM', 'en').format(DateTime.now());
+    var customDate = _selectedDate == null ? DateTime.now() : _selectedDate;
+    return DateFormat('EEEE, dd MMMM', 'en').format(customDate);
   }
 
   void _removeActivity(ActivitiesProvider activitiesProvider, Activity activity,
@@ -174,7 +221,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   void initiateProviders() {
     Future.microtask(() => {
           Provider.of<ActivitiesProvider>(context, listen: false)
-              .fetchActivites(widget.user.token),
+              .fetchActivites(widget.user.token, _selectedDate),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });
