@@ -1,13 +1,24 @@
-import datetime
-from pytz import timezone
-
-import pytest
-
 from api_backend_server.web_app.apis.activities import (
     _parse_to_utc_iso8610,
     _convert_unix_to_iso8610,
     _calculate_duration_in_mins,
+    _validate_time_overlapping,
 )
+
+from api_backend_server.web_app.models import Activities
+import datetime
+from pytz import timezone
+
+import pytest
+from mongoengine import connect
+
+
+@pytest.fixture(scope='function')
+def mongo(request):
+    db = connect('mongoenginetest', host='mongomock://localhost')
+    yield db
+    db.drop_database('mongoenginetest')
+    db.close()
 
 
 def test__parse_to_utc_iso8610_should_succeed():
@@ -55,3 +66,73 @@ def test__calculate_duration_in_mins():
 
     # then
     assert duration == float(255)
+
+
+simple_activity_data = {'activity_id': "6fdfa589-412c-489f-92fa-b472ee9fae7c",
+                        'name': "activity_sample",
+                        'user_id': "4f175f70-d192-42a4-bd74-6f5b5baf7963",
+                        'activity_start': _parse_to_utc_iso8610(
+                            "2020-05-15T14:30:25+00:00"),
+                        'activity_end': _parse_to_utc_iso8610(
+                            "2020-05-15T16:30:25+00:00"),
+                        'category_id': "1",
+                        'duration': 120.0,
+                        }
+
+
+def test__validate_time_overlapping_overlap_not_occurs(mongo):
+
+    new_activity_start = "2020-05-15T05:30:25+00:00"
+    new_activity_end = "2020-05-15T07:30:25+00:00"
+
+    Activities(activity_id=simple_activity_data['activity_id'],
+               name=simple_activity_data['name'],
+               user_id=simple_activity_data['user_id'],
+               activity_start=simple_activity_data['activity_start'],
+               activity_end=simple_activity_data['activity_end'],
+               category=simple_activity_data['category_id'],
+               duration=simple_activity_data['duration'],
+               ).save()
+
+    token_info_for_test = {'public_id': '4f175f70-d192-42a4-bd74-6f5b5baf7963'}
+    result = _validate_time_overlapping(_parse_to_utc_iso8610(new_activity_start),
+                                        _parse_to_utc_iso8610(new_activity_end),
+                                        token_info_for_test)
+    assert result is False
+
+
+def test__validate_time_overlapping_overlap_occurs(mongo):
+
+    new_activity_start = "2020-05-15T15:30:25+00:00"
+    new_activity_end = "2020-05-15T19:30:25+00:00"
+
+    Activities(activity_id=simple_activity_data['activity_id'],
+               name=simple_activity_data['name'],
+               user_id=simple_activity_data['user_id'],
+               activity_start=simple_activity_data['activity_start'],
+               activity_end=simple_activity_data['activity_end'],
+               category=simple_activity_data['category_id'],
+               duration=simple_activity_data['duration'],
+               ).save()
+
+    token_info_for_test = {'public_id': '4f175f70-d192-42a4-bd74-6f5b5baf7963'}
+    result = _validate_time_overlapping(_parse_to_utc_iso8610(new_activity_start),
+                                        _parse_to_utc_iso8610(new_activity_end),
+                                        token_info_for_test)
+    assert result is True
+
+
+def test_delete_specific_activity(mongo):
+
+    Activities(activity_id=simple_activity_data['activity_id'],
+               name=simple_activity_data['name'],
+               user_id=simple_activity_data['user_id'],
+               activity_start=simple_activity_data['activity_start'],
+               activity_end=simple_activity_data['activity_end'],
+               category=simple_activity_data['category_id'],
+               duration=simple_activity_data['duration'],
+               ).save()
+
+    result = Activities.delete_specific_activity("6fdfa589-412c-489f-92fa-b472ee9fae7c")
+
+    assert result is True
