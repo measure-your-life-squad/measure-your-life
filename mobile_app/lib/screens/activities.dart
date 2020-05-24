@@ -11,6 +11,7 @@ import 'package:measure_your_life_app/widgets/app_alert.dart';
 import 'package:measure_your_life_app/widgets/app_drawer.dart';
 import 'package:measure_your_life_app/widgets/new_activity_view.dart';
 import 'package:provider/provider.dart';
+import 'package:measure_your_life_app/widgets/date_picker.dart';
 
 class ActivitiesPage extends StatefulWidget {
   final User user;
@@ -65,14 +66,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          getFormattedDate(),
-                          style: TextStyle(color: Colors.white70, fontSize: 18),
-                        ),
-                        Text(
-                          'Today',
-                          style: TextStyle(color: Colors.white, fontSize: 32),
-                        ),
+                        ChoosenDate(),
                       ],
                     ),
                   )
