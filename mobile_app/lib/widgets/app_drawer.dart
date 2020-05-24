@@ -46,7 +46,9 @@ class AppDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StopwatchHomePage(),
+                  builder: (context) => StopwatchHomePage(
+                    user: user,
+                  ),
                   ),
                 );
               },
