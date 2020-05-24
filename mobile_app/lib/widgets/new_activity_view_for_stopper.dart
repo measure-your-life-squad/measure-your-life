@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:icons_helper/icons_helper.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:measure_your_life_app/models/activity.dart';
@@ -13,8 +14,8 @@ import 'package:provider/provider.dart';
 
 class NewActivityView extends StatefulWidget {
   final User user;
-  final String endTime;
-  final String startTime;
+  final DateTime endTime;
+  final DateTime startTime;
 
   NewActivityView({Key key, this.user, this.endTime, this.startTime}) : super(key: key);
 
@@ -85,11 +86,15 @@ class _NewActivityViewState extends State<NewActivityView> {
                       SizedBox(
                         height: 10.0,
                       ),
-                      _buildActivityStartTextField(),
+                      _buildActivityStartTextField(
+                        DateFormat("yyyy-mm-dd hh:mm:ss").format(widget.startTime)
+                      ),
                       SizedBox(
                         height: 10.0,
                       ),
-                      _buildActivityEndTextField(),
+                      _buildActivityEndTextField(
+                        DateFormat("yyyy-mm-dd hh:mm:ss").format(widget.endTime)
+                        ),
                       SizedBox(
                         height: 10.0,
                       ),
@@ -196,16 +201,16 @@ class _NewActivityViewState extends State<NewActivityView> {
     );
   }
 
-  Widget _buildActivityStartTextField() {
+  Widget _buildActivityStartTextField(String startDate) {
     return TextFormField(
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Activity start',
-        hintText:   widget.startTime,
         filled: true,
         fillColor: Colors.white,
         prefixIcon: Icon(Icons.av_timer),
       ),
+      initialValue: startDate,
       keyboardType: TextInputType.number,
       inputFormatters: [
         MaskTextInputFormatter(
@@ -221,17 +226,17 @@ class _NewActivityViewState extends State<NewActivityView> {
     );
   }
 
-  Widget _buildActivityEndTextField() {
+  Widget _buildActivityEndTextField(String endDate) {
     return TextFormField(
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Activity end',
-        hintText: widget.endTime,
         filled: true,
         fillColor: Colors.white,
         prefixIcon: Icon(Icons.av_timer),
       ),
       keyboardType: TextInputType.number,
+      initialValue: endDate,
       inputFormatters: [
         MaskTextInputFormatter(
             mask: '#@:&@', filter: Validators.getHourValidator())
