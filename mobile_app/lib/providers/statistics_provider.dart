@@ -7,12 +7,19 @@ import 'package:measure_your_life_app/models/statistics.dart';
 
 class StatisticsProvider with ChangeNotifier {
   Statistics _statistics;
+  OldestDate _oldestDate;
+
   bool _isFetching = false;
+  bool _isFetchingOldestDate = false;
 
   Statistics get statistics => _statistics;
-  bool get isFetching => _isFetching;
+  OldestDate get oldestDate => _oldestDate;
 
-  Future<bool> getStatistics(String token) async {
+  bool get isFetching => _isFetching;
+  bool get isFetchingOldestDate => _isFetchingOldestDate;
+
+  Future<bool> getStatistics(String token,
+      {String startRange, String endRange}) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -22,8 +29,16 @@ class StatisticsProvider with ChangeNotifier {
         'Authorization': 'Bearer $token'
       };
 
+      String url;
+
+      if (startRange == null || endRange == null) {
+        url = API.statisticsPath + '?include_unassigned=false';
+      } else {
+        url = API.statisticsPath +
+            '?include_unassigned=false&start_range=$startRange&end_range=$endRange';
+      }
       final response = await http.get(
-        API.statisticsPath + '?include_unassigned=false',
+        url,
         headers: headers,
       );
 
@@ -46,8 +61,48 @@ class StatisticsProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> getOldestDate(String token) async {
+    try {
+      _isFetchingOldestDate = true;
+      notifyListeners();
+
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+
+      print(API.oldestdatePath);
+
+      final response = await http.get(
+        API.oldestdatePath,
+        headers: headers,
+      );
+
+      print(response.body);
+
+      final Map<String, dynamic> oldestDate = json.decode(response.body);
+
+      if (oldestDate == null) {
+        _isFetchingOldestDate = false;
+        notifyListeners();
+        return false;
+      }
+
+      _oldestDate = OldestDate.fromJson(oldestDate);
+
+      _isFetchingOldestDate = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print(e);
+      processApiEception(e);
+      return false;
+    }
+  }
+
   void processApiEception(e) {
     _isFetching = false;
+    _isFetchingOldestDate = false;
     notifyListeners();
   }
 }

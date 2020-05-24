@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/screens/statistics.dart';
+import 'package:measure_your_life_app/screens/stopwatch.dart';
 
 class AppDrawer extends StatelessWidget {
   final User user;
@@ -37,6 +38,19 @@ class AppDrawer extends StatelessWidget {
               );
             },
           ),
+          ListTile(
+            leading: Icon(Icons.access_alarms),
+            title: Text('Activity Stopwatch (beta)'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StopwatchHomePage(),
+                  ),
+                );
+              },
+            ),
           Divider(),
           ListTile(
             leading: Icon(Icons.exit_to_app),
