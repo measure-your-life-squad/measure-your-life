@@ -35,6 +35,9 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     final activitiesProvider = Provider.of<ActivitiesProvider>(context);
     final categoriesProvider = Provider.of<CategoriesProvider>(context);
     final userRepository = Provider.of<UserRepository>(context);
+ 
+
+
 
     return Scaffold(
       drawer: AppDrawer(widget.user, userRepository.signOut),
@@ -66,7 +69,15 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        ChoosenDate(),
+                        Text(
+                          getFormattedDate(),
+                          style: TextStyle(color: Colors.white70, fontSize: 18),
+                        ),
+                        Text(
+                          'Today',
+                          style: TextStyle(color: Colors.white, fontSize: 32),
+                        ),
+                           //  ChoosenDate()
                       ],
                     ),
                   )
