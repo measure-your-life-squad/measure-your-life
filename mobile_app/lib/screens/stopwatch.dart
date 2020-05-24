@@ -25,9 +25,12 @@ class StopwatchHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0.0,
+        centerTitle: true,
+      ),
         body: new Container(
             alignment: Alignment.center,
-            padding: EdgeInsets.all(20.0),
             child: 
               MainScreenPortrait(dependencies: dependencies)
       )
