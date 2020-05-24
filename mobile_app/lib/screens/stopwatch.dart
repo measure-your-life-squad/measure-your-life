@@ -174,7 +174,7 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
   void initiateProviders() {
     Future.microtask(() => {
           Provider.of<ActivitiesProvider>(context, listen: false)
-              .fetchActivites(widget.user.token),
+              .fetchActivites(widget.user.token, DateTime.now()),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });
