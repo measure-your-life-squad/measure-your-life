@@ -50,17 +50,15 @@ def _validate_time_overlapping(activity_start, activity_end, token_info: dict):
             "activity_end": _convert_unix_to_iso8610(activity.activity_end)}
         for activity in activities
     ]
-    if activities_starting_time_and_ending_time[0]['activity_start']:
-        for i in range(len(activities_starting_time_and_ending_time)):
-            if activity_start < \
-                activities_starting_time_and_ending_time[i]['activity_end'] \
-                and activity_end > \
-                    activities_starting_time_and_ending_time[i]['activity_start']:
-                return True
-            else:
-                return False
-    else:
-        return False
+
+    for i in range(len(activities_starting_time_and_ending_time)):
+        if activity_start < \
+            activities_starting_time_and_ending_time[i]['activity_end'] \
+            and activity_end > \
+                activities_starting_time_and_ending_time[i]['activity_start']:
+            return True
+        else:
+            return False
 
 
 @auth_utils.confirmed_user_required
