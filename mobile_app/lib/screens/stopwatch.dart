@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:async';
 import 'package:measure_your_life_app/classes/dependencies.dart';
-import 'package:measure_your_life_app/widgets/new_activity_view_for_stopper.dart';
+import 'package:measure_your_life_app/theme/constants.dart';
 import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/providers/activities_provider.dart';
 import 'package:measure_your_life_app/providers/categories_provider.dart';
+import 'package:measure_your_life_app/widgets/new_activity_view.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:measure_your_life_app/widgets/timer_clock.dart';
@@ -20,51 +21,25 @@ class StopwatchHomePage extends StatefulWidget {
 }
 
 class _StopwatchHomePageState extends State<StopwatchHomePage> {
-  final Dependencies dependencies = new Dependencies();
+  final Dependencies dependencies = Dependencies();
   DateTime endTime;
   DateTime startTime;
+  Icon leftButtonIcon;
+  Icon rightButtonIcon;
+  Icon centreButtonIcon;
+
+  Color leftButtonColor;
+  Color rightButtonColor;
+  Color centreButtonColor;
+
+  Timer timer;
 
   @override
   void initState() {
+    super.initState();
     initiateProviders();
     initializeDateFormatting();
-    if (dependencies.stopwatch.isRunning) {
-      timer = new Timer.periodic(new Duration(milliseconds: 20), updateTime);
-      leftButtonIcon = Icon(Icons.pause);
-      leftButtonColor = Colors.red;
-      rightButtonIcon = Icon(
-        Icons.refresh,
-        color: Colors.blue,
-      );
-      rightButtonColor = Colors.white70;
-      centreButtonIcon = Icon(Icons.fiber_manual_record);
-      centreButtonColor = Colors.red;
-    } else {
-      leftButtonIcon = Icon(Icons.play_arrow);
-      leftButtonColor = Colors.green;
-      rightButtonIcon = Icon(Icons.refresh);
-      rightButtonColor = Colors.blue;
-      centreButtonIcon = Icon(Icons.fiber_manual_record);
-      centreButtonColor = Colors.red;
-    }
-    super.initState();
-  }
-
-  Future _buildNewActivityView(
-      BuildContext context, DateTime endTime, DateTime startTime) {
-    resetWatch();
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      builder: (BuildContext context) {
-        print('co tu mamy: ' + startTime.toString());
-        return NewActivityView(
-            user: widget.user, startTime: startTime, endTime: endTime);
-      },
-    );
+    initializeStopwatch();
   }
 
   @override
@@ -74,7 +49,7 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
         elevation: 0.0,
         centerTitle: true,
       ),
-      body: new Container(
+      body: Container(
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -102,7 +77,7 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          'MeasureYourLife',
+                          Constants.appTitle,
                           style: TextStyle(color: Colors.white70, fontSize: 18),
                         ),
                         Text(
@@ -160,8 +135,6 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
                     );
                   }),
             ),
-
-            //Text('$savedTimeList')
           ],
         ),
       ),
@@ -172,24 +145,52 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
     );
   }
 
+  Future _buildNewActivityView(
+      BuildContext context, DateTime endTime, DateTime startTime) {
+    resetWatch();
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      builder: (BuildContext context) {
+        return NewActivityView(
+            user: widget.user, startTime: startTime, endTime: endTime);
+      },
+    );
+  }
+
   void initiateProviders() {
     Future.microtask(() => {
           Provider.of<ActivitiesProvider>(context, listen: false)
-              .fetchActivites(widget.user.token, DateTime.now()),
+              .fetchActivites(widget.user.token),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });
   }
 
-  Icon leftButtonIcon;
-  Icon rightButtonIcon;
-  Icon centreButtonIcon;
-
-  Color leftButtonColor;
-  Color rightButtonColor;
-  Color centreButtonColor;
-
-  Timer timer;
+  void initializeStopwatch() {
+    if (dependencies.stopwatch.isRunning) {
+      timer = Timer.periodic(Duration(milliseconds: 20), updateTime);
+      leftButtonIcon = Icon(Icons.pause);
+      leftButtonColor = Colors.red;
+      rightButtonIcon = Icon(
+        Icons.refresh,
+        color: Colors.blue,
+      );
+      rightButtonColor = Colors.white70;
+      centreButtonIcon = Icon(Icons.fiber_manual_record);
+      centreButtonColor = Colors.red;
+    } else {
+      leftButtonIcon = Icon(Icons.play_arrow);
+      leftButtonColor = Colors.green;
+      rightButtonIcon = Icon(Icons.refresh);
+      rightButtonColor = Colors.blue;
+      centreButtonIcon = Icon(Icons.fiber_manual_record);
+      centreButtonColor = Colors.red;
+    }
+  }
 
   updateTime(Timer timer) {
     if (dependencies.stopwatch.isRunning) {
@@ -229,7 +230,7 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
       centreButtonIcon = Icon(Icons.fiber_manual_record);
       centreButtonColor = Colors.red;
       dependencies.stopwatch.start();
-      timer = new Timer.periodic(new Duration(milliseconds: 20), updateTime);
+      timer = Timer.periodic(Duration(milliseconds: 20), updateTime);
     }
   }
 
@@ -279,7 +280,6 @@ class _StopwatchHomePageState extends State<StopwatchHomePage> {
     endTime = endDate;
     startTime = startDate;
 
-    print(endDate);
     return 'Activity Start: $startDate \nActivity End  : $endDate';
   }
 }

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class Activity {
   final int category;
   final String name;
-  final DateTime start;
-  final DateTime end;
   final int duration;
   String activityId;
+  DateTime start;
+  DateTime end;
 
   Activity(
       {@required this.category,
@@ -18,6 +18,14 @@ class Activity {
 
   set id(String activityId) {
     this.activityId = activityId;
+  }
+
+  set startTime(DateTime start) {
+    this.start = start;
+  }
+
+  set endTime(DateTime end) {
+    this.end = end;
   }
 
   factory Activity.fromJson(Map<String, dynamic> json) {
@@ -33,17 +41,12 @@ class Activity {
     );
   }
 
-  Map<String, dynamic> toJson(DateTime date) {
-    var selectedStart =
-        DateTime(date.year, date.month, date.day, start.hour, start.minute);
-    var selectedEnd =
-        DateTime(date.year, date.month, date.day, end.hour, end.minute);
-
+  Map<String, dynamic> toJson() {
     return {
       'name': name,
       'category_id': category.toString(),
-      'activity_start': selectedStart.toString(),
-      'activity_end': selectedEnd.toString(),
+      'activity_start': start.toString(),
+      'activity_end': end.toString(),
     };
   }
 }

@@ -7,15 +7,22 @@ import 'package:measure_your_life_app/models/activity.dart';
 
 import 'package:http/http.dart' as http;
 
+enum ActivitiesApiResponse { Ok, TimesOverlapping, ServerError }
+
 class ActivitiesProvider with ChangeNotifier {
   List<Activity> _activities = [];
   bool _isFetching = false;
+  DateTime _selectedDate = DateTime.now();
 
   List<Activity> get getActivites => _activities;
-
   bool get isFetching => _isFetching;
+  DateTime get getSelectedDate => _selectedDate;
 
-  Future<bool> fetchActivites(String token, {DateTime date}) async {
+  set selectedDate(DateTime date) {
+    _selectedDate = date;
+  }
+
+  Future<bool> fetchActivites(String token) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -44,13 +51,11 @@ class ActivitiesProvider with ChangeNotifier {
         return false;
       }
 
-      date = date == null ? DateTime.now() : date;
-
       _activities = activitiesList
           .map((activity) => Activity.fromJson(activity))
           .where((activity) =>
-              activity.end.difference(date).inDays == 0 &&
-              activity.end.day == date.day)
+              activity.end.difference(_selectedDate).inDays == 0 &&
+              activity.end.day == _selectedDate.day)
           .toList();
 
       _activities.sort((a, b) {
@@ -66,10 +71,8 @@ class ActivitiesProvider with ChangeNotifier {
     }
   }
 
-  Future<int> addActivity(
-      String token, Activity activity, DateTime selectedDate) async {
-    print(activity.start);
-    print(activity.end);
+  Future<ActivitiesApiResponse> addActivity(String token, Activity activity,
+      {DateTime date}) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -79,34 +82,51 @@ class ActivitiesProvider with ChangeNotifier {
         'Authorization': 'Bearer $token'
       };
 
+      date = date == null ? _selectedDate : date;
+
+      var selectedStart = DateTime(date.year, date.month, date.day,
+          activity.start.hour, activity.start.minute);
+      var selectedEnd = DateTime(date.year, date.month, date.day,
+          activity.end.hour, activity.end.minute);
+
+      activity.startTime = selectedStart;
+      activity.endTime = selectedEnd;
+
       final response = await http.post(
         API.activitiesPath,
         headers: headers,
         body: json.encode(
-          activity.toJson(selectedDate),
+          activity.toJson(),
         ),
       );
 
       _isFetching = false;
       notifyListeners();
 
+      if (response.statusCode == 422) {
+        return ActivitiesApiResponse.TimesOverlapping;
+      }
+
       if (response.statusCode != 200) {
-        return response.statusCode;
+        return ActivitiesApiResponse.ServerError;
       }
 
       final Map<String, dynamic> responseActivity = json.decode(response.body);
       activity.id = responseActivity['activity_id'];
 
-      _activities.add(activity);
+      if (activity.end.difference(_selectedDate).inDays == 0 &&
+          activity.end.day == _selectedDate.day) {
+        _activities.add(activity);
+      }
 
       _activities.sort((a, b) {
         return a.start.compareTo(b.start);
       });
 
-      return 200;
+      return ActivitiesApiResponse.Ok;
     } catch (e) {
       processApiException(e);
-      return 500;
+      return ActivitiesApiResponse.ServerError;
     }
   }
 
@@ -121,11 +141,19 @@ class ActivitiesProvider with ChangeNotifier {
         'Authorization': 'Bearer $token'
       };
 
+      var selectedStart = DateTime(_selectedDate.year, _selectedDate.month,
+          _selectedDate.day, activity.start.hour, activity.start.minute);
+      var selectedEnd = DateTime(_selectedDate.year, _selectedDate.month,
+          _selectedDate.day, activity.end.hour, activity.end.minute);
+
+      activity.startTime = selectedStart;
+      activity.endTime = selectedEnd;
+
       final response = await http.put(
         API.activitiesPath + '?activity_id=${activity.activityId}',
         headers: headers,
         body: json.encode(
-          editedActivity.toJson(activity.start),
+          editedActivity.toJson(),
         ),
       );
 
@@ -178,7 +206,6 @@ class ActivitiesProvider with ChangeNotifier {
   }
 
   void processApiException(e) {
-    print(e);
     _isFetching = false;
     notifyListeners();
   }

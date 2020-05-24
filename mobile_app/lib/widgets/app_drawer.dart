@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/screens/statistics.dart';
 import 'package:measure_your_life_app/screens/stopwatch.dart';
+import 'package:measure_your_life_app/theme/constants.dart';
 
 class AppDrawer extends StatelessWidget {
   final User user;
@@ -21,7 +22,7 @@ class AppDrawer extends StatelessWidget {
               _getGreetingsMessage(user.username),
               style: TextStyle(fontSize: 24.0),
             ),
-            accountEmail: Text('MeasureYourLife'),
+            accountEmail: Text(Constants.appTitle),
           ),
           ListTile(
             leading: Icon(Icons.insert_chart),
@@ -49,10 +50,10 @@ class AppDrawer extends StatelessWidget {
                   builder: (context) => StopwatchHomePage(
                     user: user,
                   ),
-                  ),
-                );
-              },
-            ),
+                ),
+              );
+            },
+          ),
           Divider(),
           ListTile(
             leading: Icon(Icons.exit_to_app),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/classes/dependencies.dart';
+import 'package:measure_your_life_app/theme/constants.dart';
 import 'package:measure_your_life_app/widgets/timer_clock.dart';
 
 class MainScreenPortrait extends StatefulWidget {
@@ -32,6 +33,7 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
 
   @override
   void initState() {
+    super.initState();
     if (widget.dependencies.stopwatch.isRunning) {
       timer = new Timer.periodic(new Duration(milliseconds: 20), updateTime);
       leftButtonIcon = Icon(Icons.pause);
@@ -51,16 +53,15 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
       centreButtonIcon = Icon(Icons.fiber_manual_record);
       centreButtonColor = Colors.red;
     }
-    super.initState();
   }
 
   @override
   void dispose() {
+    super.dispose();
     if (timer.isActive) {
       timer.cancel();
       timer = null;
     }
-    super.dispose();
   }
 
   @override
@@ -91,7 +92,7 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      'MeasureYourLife',
+                      Constants.appTitle,
                       style: TextStyle(color: Colors.white70, fontSize: 18),
                     ),
                     Text(
@@ -115,23 +116,22 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             FloatingActionButton(
-                heroTag: "btn1",
                 backgroundColor: leftButtonColor,
                 onPressed: startOrStopWatch,
                 child: leftButtonIcon),
             FloatingActionButton(
-                heroTag: "btn2",
                 backgroundColor: rightButtonColor,
                 onPressed: resetWatch,
                 child: rightButtonIcon),
             FloatingActionButton(
-                heroTag: "btn3",
                 backgroundColor: centreButtonColor,
                 onPressed: saveWatch,
                 child: centreButtonIcon),
           ],
         ),
-        SizedBox(height: 20.0),
+        SizedBox(
+          height: 20.0,
+        ),
         Expanded(
           child: ListView.builder(
               itemCount: widget.dependencies.savedTimeList.length,
@@ -149,8 +149,6 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
                 );
               }),
         ),
-
-        //Text('$savedTimeList')
       ],
     );
   }
@@ -223,7 +221,7 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
     Duration length = parseDuration(time);
     DateTime endDate = DateTime.now();
     DateTime startDate = endDate.subtract(length);
-    print(endDate);
+
     return 'Activity Start: $startDate \nActivity End  : $endDate';
   }
 }

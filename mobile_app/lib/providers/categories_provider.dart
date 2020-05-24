@@ -9,6 +9,8 @@ class CategoriesProvider with ChangeNotifier {
   List<Category> _categories;
   bool _isFetching = false;
 
+  bool get isFetching => _isFetching;
+
   List<Category> getCategories(String token) {
     if (_categories == null) {
       fetchCategories(token);
@@ -16,8 +18,6 @@ class CategoriesProvider with ChangeNotifier {
 
     return _categories;
   }
-
-  bool get isFetching => _isFetching;
 
   Future<bool> fetchCategories(String token) async {
     try {
