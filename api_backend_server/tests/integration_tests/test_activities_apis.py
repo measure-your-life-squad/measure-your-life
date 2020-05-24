@@ -45,6 +45,9 @@ def valid_jwt_token(scope="module"):
 
 
 def test_create_activity_should_succeed(activity, valid_jwt_token):
+    """This test is primarily designed for a run on an ephemeral Continous Integration
+    agent - it will fail if executed more than once against persistent storage database
+    due to overlapping activity start/end times."""
 
     auth_token = valid_jwt_token
     header = {'Authorization': 'Bearer ' + auth_token}

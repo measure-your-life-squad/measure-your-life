@@ -2,7 +2,7 @@ openapi: '3.0.0'
 info:
   title: MYL REST API
   description: This is OpenAPI definition of REST API for the Measure-Your-Life project.
-  version: 0.1.0
+  version: 0.9.0
   contact:
     url: 'https://github.com/measure-your-life-squad/measure-your-life'
   license:
@@ -10,8 +10,10 @@ info:
     url: >-
       https://github.com/measure-your-life-squad/measure-your-life/blob/develop/LICENSE
 servers:
-  - url: http://localhost:5000
+  - url: http://localhost:80
     description: For local API development purposes
+  - url: http://150.254.30.252:80
+    description: Public IP development server
 tags:
   - name: root
     description: root endpoint of the webserver

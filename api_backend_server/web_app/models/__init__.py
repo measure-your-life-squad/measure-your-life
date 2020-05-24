@@ -19,13 +19,13 @@ class Users(Document):
     email = EmailField(required=True, unique=True)
     email_confirmed = BooleanField(default=False)
 
-    @staticmethod
+    @staticmethod  # Custom constructor
     def get_specific_user(public_id: str) -> Document:
         (user,) = Users.objects(public_id=public_id)
 
         return user
 
-    @staticmethod
+    @staticmethod  # TODO: refactor for an instance method (may be aware of its id)
     def delete_user(public_id: str) -> bool:
         (user,) = Users.objects(public_id=public_id)
         user.delete()
@@ -49,7 +49,7 @@ class Categories(Document):
     name = StringField(max_length=50)
     icon_name = StringField(max_length=50)
 
-    @staticmethod
+    @staticmethod  # Custom constructor
     def get_specific_category(category_id: str) -> Document:
         try:
             (category,) = Categories.objects(public_id=category_id)
@@ -76,7 +76,7 @@ class Activities(Document):
     category = ReferenceField(Categories)
     duration = FloatField(min_value=0)
 
-    @staticmethod
+    @staticmethod  # Custom constructor
     def get_specific_activity(activity_id: str) -> Document:
         try:
             (activity,) = Activities.objects(activity_id=activity_id)
@@ -93,7 +93,7 @@ class Activities(Document):
 
         return activity
 
-    @staticmethod
+    @staticmethod  # TODO: refactor for an instance method (to be aware of its id)
     def delete_specific_activity(activity_id: str) -> bool:
         activity = Activities.get_specific_activity(activity_id=activity_id)
 
@@ -101,7 +101,7 @@ class Activities(Document):
 
         return True
 
-    @staticmethod
+    @staticmethod  # TODO: refactor for an instance method (to be aware of its id)
     def edit_specific_activity(activity_id: str, **kwargs: dict) -> Document:
         activity = Activities.get_specific_activity(activity_id=activity_id)
 
