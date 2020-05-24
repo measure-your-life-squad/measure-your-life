@@ -15,7 +15,7 @@ class ActivitiesProvider with ChangeNotifier {
 
   bool get isFetching => _isFetching;
 
-  Future<bool> fetchActivites(String token, DateTime date) async {
+  Future<bool> fetchActivites(String token, {DateTime date}) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -44,6 +44,8 @@ class ActivitiesProvider with ChangeNotifier {
         return false;
       }
 
+      date = date == null ? DateTime.now() : date;
+
       _activities = activitiesList
           .map((activity) => Activity.fromJson(activity))
           .where((activity) =>
@@ -66,6 +68,8 @@ class ActivitiesProvider with ChangeNotifier {
 
   Future<int> addActivity(
       String token, Activity activity, DateTime selectedDate) async {
+    print(activity.start);
+    print(activity.end);
     try {
       _isFetching = true;
       notifyListeners();

@@ -20,6 +20,8 @@ class StatisticsProvider with ChangeNotifier {
 
   Future<bool> getStatistics(String token,
       {String startRange, String endRange}) async {
+    print(startRange);
+    print(endRange);
     try {
       _isFetching = true;
       notifyListeners();
@@ -32,10 +34,10 @@ class StatisticsProvider with ChangeNotifier {
       String url;
 
       if (startRange == null || endRange == null) {
-        url = API.statisticsPath + '?include_unassigned=false';
+        url = API.statisticsPath + '?include_unassigned=true';
       } else {
         url = API.statisticsPath +
-            '?include_unassigned=false&start_range=$startRange&end_range=$endRange';
+            '?include_unassigned=true&start_range=$startRange&end_range=$endRange';
       }
       final response = await http.get(
         url,
@@ -90,7 +92,7 @@ class StatisticsProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      print(e);
+      _oldestDate = OldestDate(oldestDate: DateTime.now().toString());
       processApiEception(e);
       return false;
     }

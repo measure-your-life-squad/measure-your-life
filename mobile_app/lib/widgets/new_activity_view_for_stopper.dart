@@ -8,7 +8,6 @@ import 'package:measure_your_life_app/models/category.dart';
 import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/providers/activities_provider.dart';
 import 'package:measure_your_life_app/providers/categories_provider.dart';
-import 'package:measure_your_life_app/utils/time_converter.dart';
 import 'package:measure_your_life_app/utils/validators.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +16,8 @@ class NewActivityView extends StatefulWidget {
   final DateTime endTime;
   final DateTime startTime;
 
-  NewActivityView({Key key, this.user, this.endTime, this.startTime}) : super(key: key);
+  NewActivityView({Key key, this.user, this.endTime, this.startTime})
+      : super(key: key);
 
   @override
   _NewActivityViewState createState() => _NewActivityViewState();
@@ -87,14 +87,14 @@ class _NewActivityViewState extends State<NewActivityView> {
                         height: 10.0,
                       ),
                       _buildActivityStartTextField(
-                        DateFormat("yyyy-mm-dd hh:mm:ss").format(widget.startTime)
-                      ),
+                          DateFormat("yyyy-MM-dd HH:mm:ss")
+                              .format(widget.startTime)),
                       SizedBox(
                         height: 10.0,
                       ),
                       _buildActivityEndTextField(
-                        DateFormat("yyyy-mm-dd hh:mm:ss").format(widget.endTime)
-                        ),
+                          DateFormat("yyyy-MM-dd HH:mm:ss")
+                              .format(widget.endTime)),
                       SizedBox(
                         height: 10.0,
                       ),
@@ -202,6 +202,7 @@ class _NewActivityViewState extends State<NewActivityView> {
   }
 
   Widget _buildActivityStartTextField(String startDate) {
+    print('test ' + startDate);
     return TextFormField(
       decoration: InputDecoration(
         border: OutlineInputBorder(),
@@ -220,7 +221,7 @@ class _NewActivityViewState extends State<NewActivityView> {
         return Validators.validateField(value, 'Activity start');
       },
       onSaved: (String value) {
-        DateTime dateTime = TimeConverter.getDateTime(value);
+        DateTime dateTime = DateTime.parse(value);
         _formData['activitystart'] = dateTime.toString();
       },
     );
@@ -245,7 +246,7 @@ class _NewActivityViewState extends State<NewActivityView> {
         return Validators.validateField(value, 'Activity end');
       },
       onSaved: (String value) {
-        DateTime dateTime = TimeConverter.getDateTime(value);
+        DateTime dateTime = DateTime.parse(value);
         _formData['activityend'] = dateTime.toString();
       },
     );
@@ -268,8 +269,25 @@ class _NewActivityViewState extends State<NewActivityView> {
       duration: end.difference(start).inMinutes,
     );
 
-    if (await addActivity(widget.user.token, activity)) {
+    if (await addActivity(widget.user.token, activity, DateTime.now()) == 200) {
       Navigator.pop(context);
+    } else if (await addActivity(widget.user.token, activity, DateTime.now()) ==
+        422) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Activity time overlapping with other activities.'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          );
+        },
+      );
     } else {
       showDialog(
         context: context,

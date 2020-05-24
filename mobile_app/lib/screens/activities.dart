@@ -44,7 +44,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
       setState(() {
         _selectedDate = pickedDate.add(Duration(hours: 2));
         Provider.of<ActivitiesProvider>(context, listen: false)
-            .fetchActivites(widget.user.token, _selectedDate);
+            .fetchActivites(widget.user.token, date: _selectedDate);
       });
     });
   }
@@ -221,7 +221,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   void initiateProviders() {
     Future.microtask(() => {
           Provider.of<ActivitiesProvider>(context, listen: false)
-              .fetchActivites(widget.user.token, _selectedDate),
+              .fetchActivites(widget.user.token, date: _selectedDate),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });

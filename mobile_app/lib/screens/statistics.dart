@@ -438,9 +438,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   void _getStats(Function getStats) async {
     var formattedStartDate = DateTime(
-        startTimeDate.year, startTimeDate.month, startTimeDate.day, 0, 0);
+        startTimeDate.year, startTimeDate.month, startTimeDate.day, 2, 0);
     var formattedEndDate =
-        DateTime(endTimeDate.year, endTimeDate.month, endTimeDate.day, 23, 59);
+        DateTime(endTimeDate.year, endTimeDate.month, endTimeDate.day, 21, 59);
     await getStats(
       widget.user.token,
       startRange: formattedStartDate.toString(),
