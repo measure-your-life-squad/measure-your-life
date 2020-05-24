@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/classes/dependencies.dart';
 import 'package:measure_your_life_app/widgets/timer_clock.dart';
@@ -144,11 +145,12 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
                             widget.dependencies.savedTimeList.length,
                             index,
                             widget.dependencies.savedTimeList.elementAt(index)),
-                        style: TextStyle(fontSize: 15.0),
+                        style: TextStyle(fontSize: 18.0),
                       )),
                 );
               }),
         ),
+        
         //Text('$savedTimeList')
       ],
     );
@@ -224,7 +226,6 @@ Duration parseDuration(String s) {
     DateTime endDate = DateTime.now();
     DateTime startDate = endDate.subtract(length);
     print(endDate);
-    print(startDate);
-    return 'Activity Start: $startDate \nActivity End: $endDate';
+    return 'Activity Start: $startDate \nActivity End  : $endDate';
   }
 }
