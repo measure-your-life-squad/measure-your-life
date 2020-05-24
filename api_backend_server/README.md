@@ -1,6 +1,6 @@
 # Flask Back-End REST-API Server with MongoDB, Swagger, and SendGrid integration
 
-Source files for the Flask REST-API backend server <-> MongoDB stack with Swagger and SendGrid integration.
+Source files for the Flask REST-API backend server (wrapped in Connexion) <-> MongoDB stack with Swagger and SendGrid integration, as well as JWT token based authorization.
 
 ## In order to run locally
 
@@ -29,13 +29,15 @@ Source files for the Flask REST-API backend server <-> MongoDB stack with Swagge
 
     ```docker-compose up```
 
-Once the containers are started, the Flask web server will be accessible at localhost:5000. Mongo-Express container can be used to inspect MongoDB state, it is accessible at localhost:8081. MongoDB database state will be persisted in the directory created in step 4. If you would like to clean the db state, simply remove the files from the *mongo_db/data/db* directory.
+Once the containers are started, the Flask web server will be accessible at localhost:80. Mongo-Express container can be used to inspect MongoDB state, it is accessible at localhost:8081. MongoDB database state will be persisted in the directory created in step 4. If you would like to clean the db state, simply remove the files from the *mongo_db/data/db* directory.
 
 ## REST API Definition
 
 There is an API definition available for the project in the OpenAPI 3.0 format, which can be imported to programs such as Postman or Swagger.
 
-When developing locally, Swagger UI is also directly coupled to the web server, at the following endpoint: ```localhost:5000/ui```
+When developing locally, Swagger UI is also directly coupled to the web server, at the following endpoint: ```localhost:80/ui```
+
+The project uses Connexion for HTTP requests routing and validation, what means that updating the OpenAPI 3.0 yaml definition is required alongside REST-API development. To familiarize yourself with how it works, please check [Connexion documentation](https://connexion.readthedocs.io/en/latest/).
 
 ## In order to run and develop unit and integration tests
 
