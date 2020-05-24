@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:measure_your_life_app/classes/dependencies.dart';
 import 'package:measure_your_life_app/widgets/timer_clock.dart';
@@ -70,41 +69,41 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Container(
-            height: MediaQuery.of(context).size.height * 0.1,
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.23,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(40.0),
-                      bottomRight: Radius.circular(40.0),
-                    ),
+          height: MediaQuery.of(context).size.height * 0.1,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.23,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(40.0),
+                    bottomRight: Radius.circular(40.0),
                   ),
                 ),
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  right: 0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        'MeasureYourLife',
-                        style: TextStyle(color: Colors.white70, fontSize: 18),
-                      ),
-                      Text(
-                        'Stopwatch',
-                        style: TextStyle(color: Colors.white, fontSize: 32),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+              ),
+              Positioned(
+                bottom: 10,
+                left: 10,
+                right: 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'MeasureYourLife',
+                      style: TextStyle(color: Colors.white70, fontSize: 18),
+                    ),
+                    Text(
+                      'Stopwatch',
+                      style: TextStyle(color: Colors.white, fontSize: 32),
+                    ),
+                  ],
+                ),
+              )
+            ],
           ),
+        ),
         SizedBox(height: 20.0),
         Container(
           height: 250.0,
@@ -150,7 +149,7 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
                 );
               }),
         ),
-        
+
         //Text('$savedTimeList')
       ],
     );
@@ -183,43 +182,42 @@ class MainScreenPortraitState extends State<MainScreenPortrait> {
 
   resetWatch() {
     setState(() {
-    if (widget.dependencies.stopwatch.isRunning) {
-      widget.dependencies.stopwatch.stop();
-    }
-    leftButtonIcon = Icon(Icons.play_arrow);
-    leftButtonColor = Colors.green;
-    widget.dependencies.stopwatch.reset();
-    widget.dependencies.savedTimeList.clear();
-  });
+      if (widget.dependencies.stopwatch.isRunning) {
+        widget.dependencies.stopwatch.stop();
+      }
+      leftButtonIcon = Icon(Icons.play_arrow);
+      leftButtonColor = Colors.green;
+      widget.dependencies.stopwatch.reset();
+      widget.dependencies.savedTimeList.clear();
+    });
   }
 
   saveWatch() {
     setState(() {
       if (widget.dependencies.stopwatch.isRunning) {
         widget.dependencies.stopwatch.stop();
-      } 
+      }
       widget.dependencies.savedTimeList.insert(
-        0,
-        widget.dependencies.transformMilliSecondsToString(
-        widget.dependencies.stopwatch.elapsedMilliseconds)
-      );
+          0,
+          widget.dependencies.transformMilliSecondsToString(
+              widget.dependencies.stopwatch.elapsedMilliseconds));
     });
   }
 
-Duration parseDuration(String s) {
-  int hours = 0;
-  int minutes = 0;
-  int micros;
-  List<String> parts = s.split(':');
-  if (parts.length > 2) {
-    hours = int.parse(parts[parts.length - 3]);
+  Duration parseDuration(String s) {
+    int hours = 0;
+    int minutes = 0;
+    int micros;
+    List<String> parts = s.split(':');
+    if (parts.length > 2) {
+      hours = int.parse(parts[parts.length - 3]);
+    }
+    if (parts.length > 1) {
+      minutes = int.parse(parts[parts.length - 2]);
+    }
+    micros = (double.parse(parts[parts.length - 1]) * 1000000).round();
+    return Duration(hours: hours, minutes: minutes, microseconds: micros);
   }
-  if (parts.length > 1) {
-    minutes = int.parse(parts[parts.length - 2]);
-  }
-  micros = (double.parse(parts[parts.length - 1]) * 1000000).round();
-  return Duration(hours: hours, minutes: minutes, microseconds: micros);
-}
 
   String createListItemText(int listSize, int index, String time) {
     Duration length = parseDuration(time);
