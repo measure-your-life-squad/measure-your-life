@@ -313,6 +313,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/wdl_meter"
+  /api/statistics/oldest:
+    get:
+      tags:
+        - statistics
+      summary: Get the oldest activity start date for a user
+      operationId: apis.statistics.get_oldest_date
+      security:
+        - jwt: ['user']
+      responses:
+        '200':
+          description: Returns the oldest activity start date for a user in ISO-8601 UTC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  oldest_date:
+                    type: string
+                    example: "2020-03-15T15:27:44,098807487+00:00"
   /api/categories:
     get:
       tags:
