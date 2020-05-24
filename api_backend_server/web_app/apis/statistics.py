@@ -15,6 +15,15 @@ CATEGORIES = {
     "LEISURE": "3",
 }
 
+NO_DATA_RESPONSE = {
+    "WORK": 0.0,
+    "WORK_AVG": 0,
+    "DUTIES": 0.0,
+    "DUTIES_AVG": 0,
+    "LEISURE": 0.0,
+    "LEISURE_AVG": 0,
+}
+
 MINS_IN_HOUR = 1440
 
 
@@ -107,6 +116,11 @@ def get_rolling_meter(
         time_window = _calculate_time_window(activities)
     else:
         time_window = sum([activity.duration for activity in activities])
+
+    if time_window == 0:
+        return jsonify(
+                NO_DATA_RESPONSE
+            )
 
     share_response = _build_shared_json(time_window, activities)
 
