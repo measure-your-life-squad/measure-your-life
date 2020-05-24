@@ -30,4 +30,7 @@ Repository Table of Contents:
     - Mobile application source code
     - Development environment setup instructions
 
+5. **test_scenarios** -> Table of Content [here](test_scenarios/README.md)
+    - Functional test scenarios for the mobile app (only in Polish)
+
 ![Screenshot](1.png) ![Screenshot](2.png)  ![Screenshot](3.png)
