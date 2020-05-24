@@ -262,8 +262,24 @@ class _NewActivityViewState extends State<NewActivityView> {
       duration: end.difference(start).inMinutes,
     );
 
-    if (await addActivity(widget.user.token, activity)) {
+    if (await addActivity(widget.user.token, activity) == 200) {
       Navigator.pop(context);
+    } else if (await addActivity(widget.user.token, activity) == 422){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Activity time overlapping with other activities.'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          );
+        },
+      );
     } else {
       showDialog(
         context: context,

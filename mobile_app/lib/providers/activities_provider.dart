@@ -61,7 +61,7 @@ class ActivitiesProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> addActivity(String token, Activity activity) async {
+  Future<int> addActivity(String token, Activity activity) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -83,7 +83,7 @@ class ActivitiesProvider with ChangeNotifier {
       notifyListeners();
 
       if (response.statusCode != 200) {
-        return false;
+        return response.statusCode;
       }
 
       final Map<String, dynamic> responseActivity = json.decode(response.body);
@@ -95,10 +95,10 @@ class ActivitiesProvider with ChangeNotifier {
         return a.start.compareTo(b.start);
       });
 
-      return true;
+      return 200;
     } catch (e) {
       processApiException(e);
-      return false;
+      return 500;
     }
   }
 

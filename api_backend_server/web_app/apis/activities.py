@@ -17,6 +17,11 @@ def create_activity(token_info: dict) -> Tuple[Response, int]:
 
     start = _parse_to_utc_iso8610(data["activity_start"])
     end = _parse_to_utc_iso8610(data["activity_end"])
+
+    if _validate_time_overlapping(start, end, token_info):
+        return jsonify({'message':
+                        "Change start or end time of activity due to overlapping activities"}), 422  # NOQA
+
     activity_id = str(uuid.uuid4())
 
     category = Categories.get_specific_category(data["category_id"])
@@ -34,6 +39,26 @@ def create_activity(token_info: dict) -> Tuple[Response, int]:
     ).save()
 
     return jsonify({"activity_id": activity_id}), 200
+
+
+def _validate_time_overlapping(activity_start, activity_end, token_info: dict):
+
+    activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
+    activities_starting_time_and_ending_time = [
+        {
+            "activity_start": activity.activity_start,
+            "activity_end": activity.activity_end}
+        for activity in activities
+    ]
+
+    for i in range(len(activities_starting_time_and_ending_time)):
+        if activity_start.replace(tzinfo=None) < \
+            activities_starting_time_and_ending_time[i]['activity_end'] \
+            and activity_end.replace(tzinfo=None) > \
+                activities_starting_time_and_ending_time[i]['activity_start']:
+            return True
+
+    return False
 
 
 @auth_utils.confirmed_user_required
