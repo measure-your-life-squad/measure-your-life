@@ -12,6 +12,8 @@ info:
 servers:
   - url: http://localhost:80
     description: For local API development purposes
+  - url: http://150.254.30.252:80
+    description: Public IP development server
 tags:
   - name: root
     description: root endpoint of the webserver
