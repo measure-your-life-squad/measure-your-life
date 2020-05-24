@@ -1,11 +1,12 @@
-from typing import Tuple
+from typing import Tuple, Union
 from math import ceil
 
 from flask import Response, jsonify
-from mongoengine import Document
+from mongoengine import Document, QuerySet
 
 from models import Activities, Categories
 from api_utils import auth_utils
+from apis.activities import _parse_to_utc_iso8610
 
 
 CATEGORIES = {
@@ -17,10 +18,14 @@ CATEGORIES = {
 MINS_IN_HOUR = 1440
 
 
-def _calculate_category_duration(user_id: str, category_id: str) -> float:
+def _calculate_category_duration(activities: QuerySet, category_id: str) -> float:
     category = Categories.get_specific_category(category_id=category_id)
 
-    activities = Activities.objects(user_id=user_id, category=category).exclude("id")
+    activities = [
+        activity
+        for activity in activities
+        if activity.category == category
+    ]
 
     sum_duration = sum([activity.duration for activity in activities])
 
@@ -52,11 +57,11 @@ def _calculate_category_share(sum_duration: float, time_window: float):
     return share
 
 
-def _build_shared_json(time_window: float, user_id: str) -> dict:
+def _build_shared_json(time_window: float, activities: QuerySet) -> dict:
     result = {}
     for cat, cat_id in CATEGORIES.items():
 
-        duration = _calculate_category_duration(user_id, cat_id)
+        duration = _calculate_category_duration(activities, cat_id)
 
         share = _calculate_category_share(duration, time_window)
 
@@ -65,11 +70,11 @@ def _build_shared_json(time_window: float, user_id: str) -> dict:
     return result
 
 
-def _build_averages_json(time_window: float, user_id: str) -> dict:
+def _build_averages_json(time_window: float, activities: QuerySet) -> dict:
     result = {}
     for cat, cat_id in CATEGORIES.items():
 
-        duration = _calculate_category_duration(user_id, cat_id)
+        duration = _calculate_category_duration(activities, cat_id)
 
         average = _calculate_daily_average(duration, time_window)
 
@@ -80,19 +85,48 @@ def _build_averages_json(time_window: float, user_id: str) -> dict:
 
 @auth_utils.confirmed_user_required
 def get_rolling_meter(
-    token_info: dict, include_unassigned: bool = True
+    token_info: dict,
+    include_unassigned: bool = True,
+    start_range: Union[str, None] = None,
+    end_range: Union[str, None] = None,
 ) -> Tuple[Response, int]:
-    activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
+    if start_range and end_range:
+        start_parsed = _parse_to_utc_iso8610(start_range).replace(tzinfo=None)
+        end_parsed = _parse_to_utc_iso8610(end_range).replace(tzinfo=None)
+        activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
+        activities = [
+            activity
+            for activity in activities
+            if (activity.activity_start >= start_parsed)
+            and (activity.activity_end <= end_parsed)
+        ]
+    else:
+        activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
 
     if include_unassigned:
         time_window = _calculate_time_window(activities)
     else:
         time_window = sum([activity.duration for activity in activities])
 
-    share_response = _build_shared_json(time_window, token_info["public_id"])
+    share_response = _build_shared_json(time_window, activities)
 
-    average_response = _build_averages_json(time_window, token_info["public_id"])
+    average_response = _build_averages_json(time_window, activities)
 
     share_response.update(average_response)
 
     return jsonify(share_response)
+
+
+@auth_utils.confirmed_user_required
+def get_oldest_date(token_info: dict) -> Tuple[Response, int]:
+    oldest_activity = (
+        Activities.objects(user_id=token_info["public_id"])
+        .aggregate(
+            [{"$group": {"_id": 0, "oldest_date": {"$min": "$activity_start"}, }}]
+        )
+        .next()
+    )
+
+    oldest_activity.pop("_id", None)
+
+    return jsonify(oldest_activity)

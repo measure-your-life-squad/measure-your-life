@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:icons_helper/icons_helper.dart';
 import 'package:measure_your_life_app/models/category.dart';
@@ -44,11 +46,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
               categoriesProvider.getCategories(
                 widget.user.token,
               ),
+              statisticsProvider.oldestDate,
             ),
     );
   }
 
-  Widget _buildStatistics(Statistics statistics, List<Category> categories) {
+  Widget _buildStatistics(Statistics statistics, List<Category> categories, OldestDate oldestDate) {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -89,7 +92,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             ),
           ),
           Container(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(15.0),
             child: Column(
               children: <Widget>[
                 _buildLifeBalanceStatistics(statistics),
@@ -97,6 +100,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
               ],
             ),
           ),
+          Container(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+                children: <Widget>[
+                  _buildActivityStartTextField(oldestDate),
+                  _buildActivityEndTextField(),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -122,7 +134,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
-                  height: MediaQuery.of(context).size.height * 0.3,
+                  height: MediaQuery.of(context).size.height * 0.33,
                   child: charts.PieChart(
                     _getStatistics(statistics),
                     behaviors: [
@@ -177,10 +189,150 @@ class _StatisticsPageState extends State<StatisticsPage> {
   void initiateProviders() {
     Future.microtask(() => {
           Provider.of<StatisticsProvider>(context, listen: false)
-              .getStatistics(widget.user.token),
+              .getOldestDate(widget.user.token),
+          Provider.of<StatisticsProvider>(context, listen: false)
+              .getStatistics(
+                widget.user.token,
+              ),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });
+  }
+  
+  String _getOldestDate(OldestDate oldestDate) {
+    return DateFormat("dd MMMM yyyy").format(
+      DateTime.parse(oldestDate.oldestDate)
+    ); 
+  }
+
+  var _startTimeController = TextEditingController();
+  var _endTimeController = TextEditingController(
+    text: DateFormat("dd MMMM yyyy").format(DateTime.now())
+  );
+
+  showPickerDateRange(BuildContext context) {
+    Picker ps = Picker(
+        hideHeader: true,
+        adapter: DateTimePickerAdapter(
+          value: DateTime.now(),
+          minuteInterval: 15,
+          type: PickerDateTimeType.kDMY,
+        ),
+        onConfirm: (Picker picker, List value) {
+          print((picker.adapter as DateTimePickerAdapter).value);
+          _startTimeController.text =
+              DateFormat("dd MMMM yyyy").format(
+                (picker.adapter as DateTimePickerAdapter).value
+              );
+        });
+
+    Picker pe = Picker(
+        hideHeader: true,
+        adapter: DateTimePickerAdapter(
+          value: DateTime.now(),
+          type: PickerDateTimeType.kDMY,
+        ),
+        onConfirm: (Picker picker, List value) {
+          print((picker.adapter as DateTimePickerAdapter).value);
+          _endTimeController.text =
+              DateFormat("dd MMMM yyyy").format(
+                (picker.adapter as DateTimePickerAdapter).value
+              );
+        });
+
+    List<Widget> actions = [
+      FlatButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(PickerLocalizations.of(context).cancelText)),
+      FlatButton(
+          onPressed: () {
+            Navigator.pop(context);
+            ps.onConfirm(ps, ps.selecteds);
+            pe.onConfirm(pe, pe.selecteds);
+          },
+          child: Text(PickerLocalizations.of(context).confirmText))
+    ];
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Select Date Range"),
+            actions: actions,
+            content: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text("Begin:"),
+                  ps.makePicker(),
+                  Text("End:"),
+                  pe.makePicker()
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+Widget _buildActivityStartTextField(OldestDate oldestDate) {
+    _startTimeController.text = _getOldestDate(oldestDate);
+    return TextFormField(
+      controller: _startTimeController,
+      readOnly: true,
+      enabled: true,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: 'Chart Date Range',
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: Icon(Icons.av_timer),
+      ),
+      keyboardType: TextInputType.text,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Activity start time is empty';
+        }
+
+        return null;
+      },
+      onTap: () {
+        showPickerDateRange(context);
+      },
+      onSaved: (String value) {
+        print(value);
+      },
+    );
+  }
+
+  Widget _buildActivityEndTextField() {
+    return TextFormField(
+      controller: _endTimeController,
+      readOnly: true,
+      enabled: true,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: Icon(Icons.av_timer),
+      ),
+      keyboardType: TextInputType.text,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Activity end time is empty';
+        }
+
+        return null;
+      },
+      onTap: () {
+        showPickerDateRange(context);
+      },
+      onSaved: (String value) {
+        print(value);
+      },
+    );
   }
 
   Widget _buildAverageDailyTimesStatistics(
@@ -202,8 +354,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 alignment: Alignment.centerLeft,
               ),
               Container(
-                width: MediaQuery.of(context).size.width * 0.6,
-                height: MediaQuery.of(context).size.height * 0.2,
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: MediaQuery.of(context).size.height * 0.18,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
@@ -273,7 +425,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             ],
           ),
           Text(
-            avg.toString() + ' mins',
+            (avg / 60).toString() + ' hrs',
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,

@@ -28,3 +28,17 @@ class Statistics {
     );
   }
 }
+
+class OldestDate {
+  final String oldestDate;
+
+  OldestDate({
+    @required this.oldestDate,
+  });
+
+  factory OldestDate.fromJson(Map<String, dynamic> json) {
+    return OldestDate(
+      oldestDate: json['oldest_date'],
+    );
+  }
+}
