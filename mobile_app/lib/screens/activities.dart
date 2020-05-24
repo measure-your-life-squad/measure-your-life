@@ -31,24 +31,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     initializeDateFormatting();
   }
 
-  void _presentDatePicker() {
-    showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime.now(),
-    ).then((pickedDate) {
-      if (pickedDate == null) {
-        return;
-      }
-      setState(() {
-        _selectedDate = pickedDate.add(Duration(hours: 2));
-        Provider.of<ActivitiesProvider>(context, listen: false)
-            .fetchActivites(widget.user.token, date: _selectedDate);
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final activitiesProvider = Provider.of<ActivitiesProvider>(context);
@@ -165,7 +147,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
       builder: (BuildContext context) {
         return NewActivityView(
           user: widget.user,
-          selectedDate: selectedDate,
         );
       },
     );
@@ -218,10 +199,31 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     }
   }
 
+  void _presentDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2019),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+      setState(() {
+        _selectedDate = pickedDate.add(Duration(hours: 2));
+        var activitiesProvider =
+            Provider.of<ActivitiesProvider>(context, listen: false);
+        activitiesProvider.selectedDate = _selectedDate;
+        Provider.of<ActivitiesProvider>(context, listen: false)
+            .fetchActivites(widget.user.token);
+      });
+    });
+  }
+
   void initiateProviders() {
     Future.microtask(() => {
           Provider.of<ActivitiesProvider>(context, listen: false)
-              .fetchActivites(widget.user.token, date: _selectedDate),
+              .fetchActivites(widget.user.token),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });

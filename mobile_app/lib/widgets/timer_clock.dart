@@ -13,7 +13,6 @@ class TimerClock extends StatefulWidget {
 
 class TimerClockState extends State<TimerClock> {
   CurrentTime currentTime;
-
   Paint paint;
 
   @override
@@ -34,17 +33,18 @@ class TimerClockState extends State<TimerClock> {
 
     return CustomPaint(
       painter: ClockPainter(
-          lineColor: Colors.lightBlueAccent,
-          completeColor: Colors.blueAccent,
-          hundreds: currentTime.hundreds,
-          seconds: currentTime.seconds,
-          minutes: currentTime.minutes,
-          hours: currentTime.hours,
-          width: 4.0,
-          linePaint: paint),
+        lineColor: Colors.lightBlueAccent,
+        completeColor: Colors.blueAccent,
+        hundreds: currentTime.hundreds,
+        seconds: currentTime.seconds,
+        minutes: currentTime.minutes,
+        hours: currentTime.hours,
+        width: 4.0,
+        linePaint: paint,
+      ),
       child: Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,

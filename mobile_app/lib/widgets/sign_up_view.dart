@@ -25,6 +25,7 @@ class _SignUpViewState extends State<SignUpView> {
   @override
   Widget build(BuildContext context) {
     final userRepository = Provider.of<UserRepository>(context);
+
     return Container(
       key: _key,
       height: MediaQuery.of(context).size.height * 0.9,

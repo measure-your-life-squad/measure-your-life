@@ -11,6 +11,8 @@ import 'package:measure_your_life_app/models/statistics.dart';
 import 'package:measure_your_life_app/models/user.dart';
 import 'package:measure_your_life_app/providers/categories_provider.dart';
 import 'package:measure_your_life_app/providers/statistics_provider.dart';
+import 'package:measure_your_life_app/theme/constants.dart';
+import 'package:measure_your_life_app/utils/category_theme.dart';
 import 'package:provider/provider.dart';
 
 class StatisticsPage extends StatefulWidget {
@@ -24,6 +26,11 @@ class StatisticsPage extends StatefulWidget {
 
 class _StatisticsPageState extends State<StatisticsPage> {
   bool oldDate = true;
+  var _startTimeController = TextEditingController();
+  var startTimeDate;
+  var _endTimeController = TextEditingController(
+      text: DateFormat("dd MMMM yyyy").format(DateTime.now()));
+  var endTimeDate;
 
   @override
   void initState() {
@@ -84,7 +91,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        'MeasureYourLife',
+                        Constants.appTitle,
                         style: TextStyle(color: Colors.white70, fontSize: 18),
                       ),
                       Text(
@@ -205,15 +212,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   String _getOldestDate(OldestDate oldestDate) {
-    return DateFormat("dd MMMM yyyy")
-        .format(DateTime.parse(oldestDate.oldestDate));
+    return oldestDate == null
+        ? ''
+        : DateFormat("dd MMMM yyyy")
+            .format(DateTime.parse(oldestDate.oldestDate));
   }
-
-  var _startTimeController = TextEditingController();
-  var startTimeDate;
-  var _endTimeController = TextEditingController(
-      text: DateFormat("dd MMMM yyyy").format(DateTime.now()));
-  var endTimeDate;
 
   showPickerDateRange(BuildContext context, Function getStats) {
     Picker ps = Picker(
@@ -373,21 +376,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
     Category category =
         categories.firstWhere((category) => category.name == categoryName);
 
-    var color;
-    var avg;
-    if (category.name == 'work') {
-      color = Colors.red[400].withOpacity(0.7);
-      avg = statistics.workAvg;
-    } else if (category.name == 'duties') {
-      color = Colors.orange[400].withOpacity(0.7);
-      avg = statistics.dutiesAvg;
-    } else if (category.name == 'leisure') {
-      color = Colors.green[400].withOpacity(0.7);
-      avg = statistics.leisureAvg;
-    } else {
-      color = Colors.black;
-      avg = 0;
-    }
+    var color = CategoryTheme.getColor(category.name);
+    var avg = getAverageTimeForCategory(category, statistics);
 
     return Container(
       padding: EdgeInsets.all(8.0),
@@ -434,6 +424,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
         ],
       ),
     );
+  }
+
+  int getAverageTimeForCategory(Category category, Statistics statistics) {
+    if (category.name == 'work') {
+      return statistics.workAvg;
+    } else if (category.name == 'duties') {
+      return statistics.dutiesAvg;
+    } else if (category.name == 'leisure') {
+      return statistics.leisureAvg;
+    }
+
+    return 0;
   }
 
   void _getStats(Function getStats) async {

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:measure_your_life_app/models/activity.dart';
 import 'package:measure_your_life_app/models/category.dart';
 import 'package:measure_your_life_app/models/user.dart';
+import 'package:measure_your_life_app/utils/category_theme.dart';
 import 'package:measure_your_life_app/widgets/edit_activity_view.dart';
 
 class ActivityCard extends StatelessWidget {
@@ -15,24 +16,13 @@ class ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var color;
-
     if (categories == null) {
       return Container();
     }
 
     Category category = categories
         .firstWhere((element) => element.categoryId == activity.category);
-
-    if (category.name == 'work') {
-      color = Colors.red[400].withOpacity(0.7);
-    } else if (category.name == 'duties') {
-      color = Colors.orange[400].withOpacity(0.7);
-    } else if (category.name == 'leisure') {
-      color = Colors.green[400].withOpacity(0.7);
-    } else {
-      color = Colors.black;
-    }
+    var color = CategoryTheme.getColor(category.name);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.11,

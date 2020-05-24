@@ -20,8 +20,6 @@ class StatisticsProvider with ChangeNotifier {
 
   Future<bool> getStatistics(String token,
       {String startRange, String endRange}) async {
-    print(startRange);
-    print(endRange);
     try {
       _isFetching = true;
       notifyListeners();
@@ -34,11 +32,12 @@ class StatisticsProvider with ChangeNotifier {
       String url;
 
       if (startRange == null || endRange == null) {
-        url = API.statisticsPath + '?include_unassigned=true';
+        url = API.statisticsPath + '?include_unassigned=false';
       } else {
         url = API.statisticsPath +
-            '?include_unassigned=true&start_range=$startRange&end_range=$endRange';
+            '?include_unassigned=false&start_range=$startRange&end_range=$endRange';
       }
+
       final response = await http.get(
         url,
         headers: headers,

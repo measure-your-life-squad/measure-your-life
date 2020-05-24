@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_helper/icons_helper.dart';
+import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:measure_your_life_app/models/activity.dart';
 import 'package:measure_your_life_app/models/category.dart';
@@ -9,13 +10,16 @@ import 'package:measure_your_life_app/providers/activities_provider.dart';
 import 'package:measure_your_life_app/providers/categories_provider.dart';
 import 'package:measure_your_life_app/utils/time_converter.dart';
 import 'package:measure_your_life_app/utils/validators.dart';
+import 'package:measure_your_life_app/widgets/app_alert.dart';
 import 'package:provider/provider.dart';
 
 class NewActivityView extends StatefulWidget {
   final User user;
-  final DateTime selectedDate;
+  final DateTime startTime;
+  final DateTime endTime;
 
-  NewActivityView({Key key, this.user, this.selectedDate}) : super(key: key);
+  NewActivityView({Key key, this.user, this.startTime, this.endTime})
+      : super(key: key);
 
   @override
   _NewActivityViewState createState() => _NewActivityViewState();
@@ -206,6 +210,9 @@ class _NewActivityViewState extends State<NewActivityView> {
         fillColor: Colors.white,
         prefixIcon: Icon(Icons.av_timer),
       ),
+      initialValue: widget.startTime == null
+          ? ''
+          : DateFormat('HH:mm').format(widget.startTime),
       keyboardType: TextInputType.number,
       inputFormatters: [
         MaskTextInputFormatter(
@@ -231,6 +238,9 @@ class _NewActivityViewState extends State<NewActivityView> {
         fillColor: Colors.white,
         prefixIcon: Icon(Icons.av_timer),
       ),
+      initialValue: widget.endTime == null
+          ? ''
+          : DateFormat('HH:mm').format(widget.endTime),
       keyboardType: TextInputType.number,
       inputFormatters: [
         MaskTextInputFormatter(
@@ -263,27 +273,19 @@ class _NewActivityViewState extends State<NewActivityView> {
       duration: end.difference(start).inMinutes,
     );
 
-    if (await addActivity(widget.user.token, activity, widget.selectedDate) ==
-        200) {
+    ActivitiesApiResponse response;
+    if (widget.startTime == null) {
+      response = await addActivity(widget.user.token, activity);
+    } else {
+      response =
+          await addActivity(widget.user.token, activity, date: DateTime.now());
+    }
+
+    if (response == ActivitiesApiResponse.Ok) {
       Navigator.pop(context);
-    } else if (await addActivity(
-            widget.user.token, activity, widget.selectedDate) ==
-        422) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Activity time overlapping with other activities.'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Okay'),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            ],
-          );
-        },
-      );
+    } else if (response == ActivitiesApiResponse.TimesOverlapping) {
+      AppAlert.showAlert(
+          context, 'Activity time overlapping with other activities');
     } else {
       showDialog(
         context: context,
@@ -305,6 +307,7 @@ class _NewActivityViewState extends State<NewActivityView> {
 
   Widget buildButtons(BuildContext context) {
     final activitiesProvider = Provider.of<ActivitiesProvider>(context);
+
     return Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
