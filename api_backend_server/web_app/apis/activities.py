@@ -46,19 +46,19 @@ def _validate_time_overlapping(activity_start, activity_end, token_info: dict):
     activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
     activities_starting_time_and_ending_time = [
         {
-            "activity_start": _convert_unix_to_iso8610(activity.activity_start),
-            "activity_end": _convert_unix_to_iso8610(activity.activity_end)}
+            "activity_start": activity.activity_start,
+            "activity_end": activity.activity_end}
         for activity in activities
     ]
 
     for i in range(len(activities_starting_time_and_ending_time)):
-        if activity_start < \
+        if activity_start.replace(tzinfo=None) < \
             activities_starting_time_and_ending_time[i]['activity_end'] \
-            and activity_end > \
+            and activity_end.replace(tzinfo=None) > \
                 activities_starting_time_and_ending_time[i]['activity_start']:
             return True
-        else:
-            return False
+
+    return False
 
 
 @auth_utils.confirmed_user_required
