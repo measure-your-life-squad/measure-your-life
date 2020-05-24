@@ -10,13 +10,16 @@ class StatisticsProvider with ChangeNotifier {
   OldestDate _oldestDate;
 
   bool _isFetching = false;
+  bool _isFetchingOldestDate = false;
 
   Statistics get statistics => _statistics;
   OldestDate get oldestDate => _oldestDate;
-  
-  bool get isFetching => _isFetching;
 
-  Future<bool> getStatistics(String token, {String startRange, String endRange}) async {
+  bool get isFetching => _isFetching;
+  bool get isFetchingOldestDate => _isFetchingOldestDate;
+
+  Future<bool> getStatistics(String token,
+      {String startRange, String endRange}) async {
     try {
       _isFetching = true;
       notifyListeners();
@@ -25,18 +28,19 @@ class StatisticsProvider with ChangeNotifier {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
       };
-      
+
       String url;
 
       if (startRange == null || endRange == null) {
-          url = API.statisticsPath + '?include_unassigned=false';
+        url = API.statisticsPath + '?include_unassigned=false';
       } else {
-          url = API.statisticsPath + '?include_unassigned=false&start_range=$startRange&end_range=$endRange';
+        url = API.statisticsPath +
+            '?include_unassigned=false&start_range=$startRange&end_range=$endRange';
       }
       final response = await http.get(
-          url,
-          headers: headers,
-        );
+        url,
+        headers: headers,
+      );
 
       final Map<String, dynamic> statistics = json.decode(response.body);
 
@@ -58,35 +62,39 @@ class StatisticsProvider with ChangeNotifier {
   }
 
   Future<bool> getOldestDate(String token) async {
-  try {
-
-    _isFetching = true;
-    notifyListeners();
-
-    final Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
-    };
-
-    final response = await http.get(
-      API.oldestdatePath,
-      headers: headers,
-    );
-    
-    final Map<String, dynamic> oldestDate = json.decode(response.body);
-
-    if (oldestDate == null) {
-      _isFetching = false;
+    try {
+      _isFetchingOldestDate = true;
       notifyListeners();
-      return false;
-    }
 
-    _oldestDate = OldestDate.fromJson(oldestDate);
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
 
-    _isFetching = false;
-    notifyListeners();
-    return true;
+      print(API.oldestdatePath);
+
+      final response = await http.get(
+        API.oldestdatePath,
+        headers: headers,
+      );
+
+      print(response.body);
+
+      final Map<String, dynamic> oldestDate = json.decode(response.body);
+
+      if (oldestDate == null) {
+        _isFetchingOldestDate = false;
+        notifyListeners();
+        return false;
+      }
+
+      _oldestDate = OldestDate.fromJson(oldestDate);
+
+      _isFetchingOldestDate = false;
+      notifyListeners();
+      return true;
     } catch (e) {
+      print(e);
       processApiEception(e);
       return false;
     }
@@ -94,7 +102,7 @@ class StatisticsProvider with ChangeNotifier {
 
   void processApiEception(e) {
     _isFetching = false;
+    _isFetchingOldestDate = false;
     notifyListeners();
   }
 }
-

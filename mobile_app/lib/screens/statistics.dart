@@ -23,6 +23,8 @@ class StatisticsPage extends StatefulWidget {
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
+  bool oldDate = true;
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +41,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
         elevation: 0.0,
         centerTitle: true,
       ),
-      body: statisticsProvider.isFetching || categoriesProvider.isFetching
+      body: statisticsProvider.isFetching ||
+              categoriesProvider.isFetching ||
+              statisticsProvider.isFetchingOldestDate
           ? Center(child: CircularProgressIndicator())
           : _buildStatistics(
               statisticsProvider.statistics,
@@ -47,11 +51,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 widget.user.token,
               ),
               statisticsProvider.oldestDate,
+              statisticsProvider.getStatistics,
             ),
     );
   }
 
-  Widget _buildStatistics(Statistics statistics, List<Category> categories, OldestDate oldestDate) {
+  Widget _buildStatistics(Statistics statistics, List<Category> categories,
+      OldestDate oldestDate, Function getStats) {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -92,6 +98,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
             ),
           ),
           Container(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                _buildActivityStartTextField(oldestDate, getStats, oldDate),
+                _buildActivityEndTextField(getStats),
+              ],
+            ),
+          ),
+          Container(
             padding: EdgeInsets.all(15.0),
             child: Column(
               children: <Widget>[
@@ -100,15 +115,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-                children: <Widget>[
-                  _buildActivityStartTextField(oldestDate),
-                  _buildActivityEndTextField(),
-                ],
-              ),
-            ),
         ],
       ),
     );
@@ -190,27 +196,26 @@ class _StatisticsPageState extends State<StatisticsPage> {
     Future.microtask(() => {
           Provider.of<StatisticsProvider>(context, listen: false)
               .getOldestDate(widget.user.token),
-          Provider.of<StatisticsProvider>(context, listen: false)
-              .getStatistics(
-                widget.user.token,
-              ),
+          Provider.of<StatisticsProvider>(context, listen: false).getStatistics(
+            widget.user.token,
+          ),
           Provider.of<CategoriesProvider>(context, listen: false)
               .getCategories(widget.user.token),
         });
   }
-  
+
   String _getOldestDate(OldestDate oldestDate) {
-    return DateFormat("dd MMMM yyyy").format(
-      DateTime.parse(oldestDate.oldestDate)
-    ); 
+    return DateFormat("dd MMMM yyyy")
+        .format(DateTime.parse(oldestDate.oldestDate));
   }
 
   var _startTimeController = TextEditingController();
+  var startTimeDate;
   var _endTimeController = TextEditingController(
-    text: DateFormat("dd MMMM yyyy").format(DateTime.now())
-  );
+      text: DateFormat("dd MMMM yyyy").format(DateTime.now()));
+  var endTimeDate;
 
-  showPickerDateRange(BuildContext context) {
+  showPickerDateRange(BuildContext context, Function getStats) {
     Picker ps = Picker(
         hideHeader: true,
         adapter: DateTimePickerAdapter(
@@ -219,11 +224,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
           type: PickerDateTimeType.kDMY,
         ),
         onConfirm: (Picker picker, List value) {
-          print((picker.adapter as DateTimePickerAdapter).value);
-          _startTimeController.text =
-              DateFormat("dd MMMM yyyy").format(
-                (picker.adapter as DateTimePickerAdapter).value
-              );
+          startTimeDate = (picker.adapter as DateTimePickerAdapter).value;
+          _startTimeController.text = DateFormat("dd MMMM yyyy")
+              .format((picker.adapter as DateTimePickerAdapter).value);
         });
 
     Picker pe = Picker(
@@ -233,11 +236,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
           type: PickerDateTimeType.kDMY,
         ),
         onConfirm: (Picker picker, List value) {
-          print((picker.adapter as DateTimePickerAdapter).value);
-          _endTimeController.text =
-              DateFormat("dd MMMM yyyy").format(
-                (picker.adapter as DateTimePickerAdapter).value
-              );
+          endTimeDate = (picker.adapter as DateTimePickerAdapter).value;
+          _endTimeController.text = DateFormat("dd MMMM yyyy")
+              .format((picker.adapter as DateTimePickerAdapter).value);
         });
 
     List<Widget> actions = [
@@ -248,9 +249,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
           child: Text(PickerLocalizations.of(context).cancelText)),
       FlatButton(
           onPressed: () {
+            oldDate = false;
             Navigator.pop(context);
             ps.onConfirm(ps, ps.selecteds);
             pe.onConfirm(pe, pe.selecteds);
+            _getStats(getStats);
           },
           child: Text(PickerLocalizations.of(context).confirmText))
     ];
@@ -277,15 +280,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
         });
   }
 
-Widget _buildActivityStartTextField(OldestDate oldestDate) {
-    _startTimeController.text = _getOldestDate(oldestDate);
+  Widget _buildActivityStartTextField(
+      OldestDate oldestDate, Function getStats, bool oldDate) {
+    _startTimeController.text =
+        oldDate ? _getOldestDate(oldestDate) : _startTimeController.text;
     return TextFormField(
       controller: _startTimeController,
       readOnly: true,
       enabled: true,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
-        labelText: 'Chart Date Range',
+        labelText: 'Statistics Date Range',
         filled: true,
         fillColor: Colors.white,
         prefixIcon: Icon(Icons.av_timer),
@@ -299,15 +304,12 @@ Widget _buildActivityStartTextField(OldestDate oldestDate) {
         return null;
       },
       onTap: () {
-        showPickerDateRange(context);
-      },
-      onSaved: (String value) {
-        print(value);
+        showPickerDateRange(context, getStats);
       },
     );
   }
 
-  Widget _buildActivityEndTextField() {
+  Widget _buildActivityEndTextField(Function getStats) {
     return TextFormField(
       controller: _endTimeController,
       readOnly: true,
@@ -327,10 +329,7 @@ Widget _buildActivityStartTextField(OldestDate oldestDate) {
         return null;
       },
       onTap: () {
-        showPickerDateRange(context);
-      },
-      onSaved: (String value) {
-        print(value);
+        showPickerDateRange(context, getStats);
       },
     );
   }
@@ -434,6 +433,18 @@ Widget _buildActivityStartTextField(OldestDate oldestDate) {
           ),
         ],
       ),
+    );
+  }
+
+  void _getStats(Function getStats) async {
+    var formattedStartDate = DateTime(
+        startTimeDate.year, startTimeDate.month, startTimeDate.day, 0, 0);
+    var formattedEndDate =
+        DateTime(endTimeDate.year, endTimeDate.month, endTimeDate.day, 23, 59);
+    await getStats(
+      widget.user.token,
+      startRange: formattedStartDate.toString(),
+      endRange: formattedEndDate.toString(),
     );
   }
 }
