@@ -1,6 +1,7 @@
 import uuid
 import datetime
 from typing import Tuple
+import logging
 
 from dateutil import parser as dp
 from dateutil import tz
@@ -8,6 +9,15 @@ from flask import request, jsonify, Response
 
 from models import Activities, Categories
 from api_utils import auth_utils
+
+
+FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
+
+activity_logger = logging.getLogger(__name__)
+activity_logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(FORMATTER)
+activity_logger.addHandler(console_handler)
 
 
 @auth_utils.confirmed_user_required
@@ -51,10 +61,13 @@ def _validate_time_overlapping(
     activity_start, activity_end, token_info: dict, activity_id: str = None
 ):
 
-    activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
-
+    activity_logger.info(activity_id)
     if activity_id:
-        activities = [x for x in activities if x.activity_id != activity_id]
+        activities = Activities.objects(
+            user_id=token_info["public_id"], activity_id__ne=activity_id
+        ).exclude("id")
+    else:
+        activities = Activities.objects(user_id=token_info["public_id"]).exclude("id")
 
     activities_starting_time_and_ending_time = [
         {
