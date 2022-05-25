@@ -2,7 +2,7 @@ flask==1.1.1
 datetime==4.3
 uuid==1.30
 flask-mongoengine==0.9.5
-PyJWT==1.7.1
+PyJWT==2.4.0
 python-dateutil==2.8.1
 connexion[swagger-ui]==2.6.0
 sendgrid==6.3.*
